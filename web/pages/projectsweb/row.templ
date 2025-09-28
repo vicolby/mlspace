@@ -1,0 +1,14 @@
+package projectsweb
+
+import "fmt"
+
+templ ProjectRow(p WebProject) {
+    <tr hx-get={fmt.Sprintf("/projects/%s", p.ID)} hx-target="#main-container" hx-swap="innerHTML" hx-push-url="true" class="hover:bg-base-300">
+        <td class="min-w-[12rem] max-w-[20rem] whitespace-normal overflow-hidden text-ellipsis overflow-x-scroll">{p.Name}</td>
+        <td class="min-w-[12rem] max-w-[20rem] whitespace-normal overflow-hidden text-ellipsis overflow-x-scroll">{p.Description}</td>
+        <td>{p.OwnerUsername}</td>
+        <td>{p.CPULimit}</td>
+        <td>{p.RAMLimit}</td>
+        <td>{p.StorageLimit}</td>
+    </tr>
+}

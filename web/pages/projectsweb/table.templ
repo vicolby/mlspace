@@ -1,0 +1,22 @@
+package projectsweb
+
+
+templ ProjectTable(project_list []WebProject) {
+    <table class="table table-compact w-full">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Owner</th>
+                <th>CPU Limit</th>
+                <th>RAM Limit</th>
+                <th>Storage Limit</th>
+            </tr>
+        </thead>
+    <tbody id="project_list">
+        for _, p := range project_list {
+            @ProjectRow(p)
+        }
+    </tbody>
+    </table>
+}

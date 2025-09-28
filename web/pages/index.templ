@@ -1,0 +1,12 @@
+package pages
+
+import "aispace/web/layouts"
+import "aispace/web/components"
+
+templ Index() {
+    @layouts.Base() {
+        @components.Navbar()
+        <div id="index-container">
+        </div>
+    }
+}

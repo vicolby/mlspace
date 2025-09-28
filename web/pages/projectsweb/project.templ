@@ -1,0 +1,68 @@
+package projectsweb
+
+import "aispace/web/layouts"
+import "aispace/web/components"
+
+templ ProjectPagePartial(project WebProject, participants []WebProjectParticipant) {
+    <div class="project-page p-4">
+        <div class="card card-border bg-base-200 overflow-y-auto">
+            <div class="card-body">
+                <h2 class="card-title">{project.Name}</h2>
+                <p>{project.Description}</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-5 gap-4 mt-4">
+            <div class="card card-border bg-base-200 overflow-y-auto">
+                <div class="card-body">
+                    <div class="flex gap-4">
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="radial-progress text-primary border-2 border-primary"
+                                style="--value:0; --size:4rem" aria-valuenow="0" role="progressbar">
+                                0 / {project.CPULimit}
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">CPU</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="radial-progress text-primary border-2 border-primary"
+                                style="--value:0;--size:4rem" aria-valuenow="0" role="progressbar">
+                                0 / {project.RAMLimit}
+                                GB
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">RAM</p>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div
+                                class="radial-progress text-primary border-2 border-primary"
+                                style="--value:0;--size:4rem" aria-valuenow="0" role="progressbar">
+                                0 / {project.StorageLimit}
+                                GB
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">Storage</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="project-entities" class="col-span-4">
+                <div class="tabs tabs-border">
+                    <input type="radio" name="my_tabs_2" class="tab" aria-label="Workspaces" checked="checked"/>
+                    <div class="tab-content border-base-300 bg-base-200 p-6">Tab content 1</div>
+
+                    <input type="radio" name="my_tabs_2" class="tab" aria-label="Disks"/>
+                    <div class="tab-content border-base-300 bg-base-200 p-6">Tab content 2</div>
+                </div>
+            </div>
+            <div id="participants" class="col-span-1">
+                @ParticipantList(participants, WebProjectParticipant{Email: project.OwnerEmail, Name: project.OwnerUsername})
+            </div>
+        </div>
+    </div>
+}
+
+templ ProjectPageFull(project WebProject, participants []WebProjectParticipant) {
+    @layouts.Base() {
+        @components.Navbar()
+        @ProjectPagePartial(project, participants)
+    }
+}
