@@ -48,8 +48,13 @@ services:
     container_name: keycloak_setup
     volumes:
       - ./scripts/setup-keycloak.sh:/setup-keycloak.sh
-    entrypoint: ["/bin/sh", "/setup-keycloak.sh"]
+    entrypoint: ["/bin/sh", "./setup-keycloak.sh"]
     restart: "no"
+    depends_on:
+      keycloak:
+        condition: service_started
+    networks:
+      - default
 
 volumes:
   postgres_data:

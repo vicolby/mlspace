@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/google/uuid"
-import "aispace/internal/middlewares"
+import "aispace/internal/consts"
 
 type WebProjectParticipant struct {
 	ID    uuid.UUID
@@ -152,11 +152,11 @@ func ParticipantList(participants []WebProjectParticipant, owner WebProjectParti
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ParticipantsHeader(ctx.Value(middlewares.ContextEmail).(string) == owner.Email).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ParticipantsHeader(ctx.Value(consts.ContextEmail).(string) == owner.Email).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ParticipantRow(owner.Name, owner.Email, ctx.Value(middlewares.ContextEmail).(string) == owner.Email).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ParticipantRow(owner.Name, owner.Email, ctx.Value(consts.ContextEmail).(string) == owner.Email).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

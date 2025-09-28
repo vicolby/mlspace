@@ -1,7 +1,7 @@
 package projectsweb
 
 import "github.com/google/uuid"
-import "aispace/internal/middlewares"
+import "aispace/internal/consts"
 
 type WebProjectParticipant struct {
     ID uuid.UUID
@@ -51,8 +51,8 @@ templ ParticipantsHeader(is_owner bool) {
 
 templ ParticipantList(participants []WebProjectParticipant, owner WebProjectParticipant) {
     <ul class="list bg-base-200 rounded-box shadow-md">
-        @ParticipantsHeader(ctx.Value(middlewares.ContextEmail).(string) == owner.Email)
-        @ParticipantRow(owner.Name, owner.Email, ctx.Value(middlewares.ContextEmail).(string) == owner.Email)
+        @ParticipantsHeader(ctx.Value(consts.ContextEmail).(string) == owner.Email)
+        @ParticipantRow(owner.Name, owner.Email, ctx.Value(consts.ContextEmail).(string) == owner.Email)
         for _, participant := range participants {
             @ParticipantRow(participant.Name, participant.Email, ctx.Value("email") == owner.Email)
         }

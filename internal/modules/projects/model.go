@@ -1,11 +1,50 @@
 package projects
 
+import (
+	"aispace/web/pages/projectsweb"
+
+	"github.com/google/uuid"
+)
+
 type Project struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	OwnerUsername string `json:"owner_username"`
-	CPULimit      int    `json:"cpu_limit"`
-	RAMLimit      int    `json:"ram_limit"`
-	StorageLimit  int    `json:"storage_limit"`
+	ID           uuid.UUID `db:"id"`
+	Name         string    `db:"name"`
+	Description  string    `db:"description"`
+	Owner        Owner
+	CPULimit     int `db:"cpu_limit"`
+	RAMLimit     int `db:"ram_limit"`
+	StorageLimit int `db:"storage_limit"`
+}
+
+func (p *Project) ToWebProject(project Project) projectsweb.WebProject {
+	return projectsweb.WebProject{
+		ID:            project.ID,
+		Name:          project.Name,
+		Description:   project.Description,
+		OwnerUsername: project.Owner.Username,
+		OwnerEmail:    project.Owner.Email,
+		CPULimit:      project.CPULimit,
+		RAMLimit:      project.RAMLimit,
+		StorageLimit:  project.StorageLimit,
+	}
+
+}
+
+type Participant struct {
+	ID       uuid.UUID `db:"id"`
+	Username string    `db:"name"`
+	Email    string    `db:"email"`
+}
+
+func (p *Participant) ToWebParticipant(participant Participant) projectsweb.WebProjectParticipant {
+	return projectsweb.WebProjectParticipant{
+		ID:    participant.ID,
+		Name:  participant.Username,
+		Email: participant.Email,
+	}
+}
+
+type Owner struct {
+	Username string `db:"name"`
+	Email    string `db:"email"`
 }

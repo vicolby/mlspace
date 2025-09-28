@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"aispace/internal/consts"
 	"context"
 	"fmt"
 	"net/http"
@@ -8,10 +9,6 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )
-
-type contextKey string
-
-var ContextEmail = contextKey("email")
 
 func AuthMiddleware(provider *oidc.Provider, config oauth2.Config) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -41,15 +38,17 @@ func AuthMiddleware(provider *oidc.Provider, config oauth2.Config) func(http.Han
 			}
 
 			var claims struct {
-				Email         string
-				EmailVerified bool
+				Email             string
+				EmailVerified     bool
+				Name              string
+				PreferredUsername string
 			}
 			idToken.Claims(&claims)
 
 			ctx := r.Context()
-			ctx = context.WithValue(ctx, ContextEmail, claims.Email)
+			ctx = context.WithValue(ctx, consts.ContextEmail, claims.Email)
+			ctx = context.WithValue(ctx, consts.ContextUsername, claims.Name)
 
-			fmt.Println("Token valid, proceeding...")
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

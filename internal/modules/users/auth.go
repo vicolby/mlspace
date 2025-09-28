@@ -2,9 +2,7 @@ package users
 
 import (
 	"aispace/internal/config"
-	"aispace/internal/storage"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -14,7 +12,7 @@ import (
 )
 
 type AuthService struct {
-	uow          storage.UnitOfWork
+	repository   UserRepository
 	oauth2Config oauth2.Config
 	config       *config.Config
 	provider     *oidc.Provider
@@ -27,8 +25,8 @@ var claims struct {
 	PreferredUsername string
 }
 
-func NewUserService(uow storage.UnitOfWork, oauth2Config oauth2.Config, config *config.Config, provider *oidc.Provider) *AuthService {
-	return &AuthService{uow: uow, oauth2Config: oauth2Config, config: config, provider: provider}
+func NewAuthService(repository UserRepository, oauth2Config oauth2.Config, config *config.Config, provider *oidc.Provider) *AuthService {
+	return &AuthService{repository: repository, oauth2Config: oauth2Config, config: config, provider: provider}
 }
 
 func (s *AuthService) Login(r *http.Request, w http.ResponseWriter) {
@@ -60,11 +58,18 @@ func (s *AuthService) Login(r *http.Request, w http.ResponseWriter) {
 			return
 		}
 
-		query := `INSERT INTO users (id, name, email, role, is_blocked, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`
-		_, err = s.uow.DB().Exec(query, uuid.New().String(), claims.Name, claims.Email, "user", false, time.Now(), time.Now())
+		user := User{
+			ID:        uuid.New(),
+			Name:      claims.Name,
+			Email:     claims.Email,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		err = s.repository.CreateUser(user)
 
 		if err != nil {
-			log.Println(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 
 		if idTokenRaw, ok := token.Extra("id_token").(string); ok {
@@ -126,21 +131,6 @@ func (s *AuthService) Logout(r *http.Request, w http.ResponseWriter) {
 	http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 }
 
-func (s *AuthService) GetCurrentUser(r *http.Request) (struct {
-	Email    string
-	Username string
-}, error) {
-	cookie, _ := r.Cookie("id_token")
-	verifier := s.provider.Verifier(&oidc.Config{ClientID: s.oauth2Config.ClientID, SkipClientIDCheck: true})
-	idToken, _ := verifier.Verify(r.Context(), cookie.Value)
-	var claims struct {
-		Email    string
-		Username string
-	}
-	idToken.Claims(&claims)
-	return claims, nil
-}
-
-func ProvideAuthService(uow storage.UnitOfWork, oauth2Config oauth2.Config, config *config.Config, provider *oidc.Provider) *AuthService {
-	return NewUserService(uow, oauth2Config, config, provider)
+func ProvideAuthService(repository UserRepository, oauth2Config oauth2.Config, config *config.Config, provider *oidc.Provider) *AuthService {
+	return NewAuthService(repository, oauth2Config, config, provider)
 }

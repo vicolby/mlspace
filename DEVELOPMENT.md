@@ -1,11 +1,11 @@
 # Roadmao
 
 - [x] auth with keycloak 
-    - Debt: no data layer provided
+    - Debt: no data layer provided [x]
 - [x] user logout
 - [x] list of projects page
 - [x] creating a project 
-    - Debt: validations inside handler and context vars inside middlware package
+    - Debt: validations inside handler and context vars inside middlware package [x][]
 - [x] project page
     - adding users to project
 - project deleting

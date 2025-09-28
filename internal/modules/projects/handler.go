@@ -23,14 +23,14 @@ func NewProjectHandler(projectService *ProjectService) *ProjectHandler {
 }
 
 func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
-	handler := h.projectService.GetProjects(r)
+	handler := h.projectService.GetProjects(w, r)
 	if handler != nil {
 		handler(w, r)
 	}
 }
 
 func (h *ProjectHandler) GetProject(w http.ResponseWriter, r *http.Request) {
-	handler := h.projectService.GetProject(r)
+	handler := h.projectService.GetProject(w, r)
 	if handler != nil {
 		handler(w, r)
 	}
@@ -42,16 +42,19 @@ func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	ram_limit, err := strconv.Atoi(r.FormValue("ram_limit"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	storage_limit, err := strconv.Atoi(r.FormValue("storage_limit"))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	command := CreateProjectCommand{
 		Name:         r.FormValue("name"),
 		Description:  r.FormValue("description"),
@@ -96,7 +99,7 @@ func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	handler := h.projectService.CreateProject(r)
+	handler := h.projectService.CreateProject(w, r, command)
 
 	if handler != nil {
 		handler(w, r)

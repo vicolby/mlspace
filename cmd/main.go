@@ -32,14 +32,16 @@ func main() {
 	}
 	fx.New(
 		fx.Provide(
-			storage.NewDB,
-			storage.NewUnitOfWork,
 			config.ProvideConfig,
 			internal.ProvideOIDC,
 			internal.ProvideOauth2,
 			internal.ProvideRouter,
+			storage.NewDB,
+			storage.NewUnitOfWork,
+			users.ProvidePostgresUserRepository,
 			users.ProvideAuthService,
 			users.ProvideAuthHandler,
+			projects.ProvidePostgresProjectRepository,
 			projects.ProvideProjectService,
 			projects.ProvideProjectHandler,
 			internal.NewHandlers,

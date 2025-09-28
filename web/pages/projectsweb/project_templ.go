@@ -58,7 +58,7 @@ func ProjectPagePartial(project WebProject, participants []WebProjectParticipant
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</p></div></div><div class=\"grid grid-cols-5 gap-4 mt-4\"><div class=\"card card-border bg-base-200 overflow-y-auto\"><div class=\"card-body\"><div class=\"flex gap-4\"><div class=\"flex flex-col items-center\"><div class=\"radial-progress text-primary border-2 border-primary\" style=\"--value:0; --size:4rem\" aria-valuenow=\"0\" role=\"progressbar\">0 / ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</p></div></div><div class=\"grid grid-cols-5 gap-4 mt-4\"><div class=\"card card-border bg-base-200 overflow-y-auto\"><div class=\"card-body flex items-center\"><div class=\"flex gap-4\"><div class=\"flex flex-col items-center\"><div class=\"radial-progress text-primary border-2 border-primary\" style=\"--value:0; --size:4rem\" aria-valuenow=\"0\" role=\"progressbar\">0 / ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -84,20 +84,20 @@ func ProjectPagePartial(project WebProject, participants []WebProjectParticipant
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " GB</div><p class=\"text-sm text-gray-500 mt-2\">RAM</p></div><div class=\"flex flex-col items-center\"><div class=\"radial-progress text-primary border-2 border-primary\" style=\"--value:0;--size:4rem\" aria-valuenow=\"0\" role=\"progressbar\">0 / ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><p class=\"text-sm text-gray-500 mt-2\">RAM[GB]</p></div><div class=\"flex flex-col items-center\"><div class=\"radial-progress text-primary border-2 border-primary\" style=\"--value:0;--size:4rem\" aria-valuenow=\"0\" role=\"progressbar\">0 / ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(project.StorageLimit)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/projectsweb/project.templ`, Line: 39, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/projectsweb/project.templ`, Line: 38, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " GB</div><p class=\"text-sm text-gray-500 mt-2\">Storage</p></div></div></div></div><div id=\"project-entities\" class=\"col-span-4\"><div class=\"tabs tabs-border\"><input type=\"radio\" name=\"my_tabs_2\" class=\"tab\" aria-label=\"Workspaces\" checked=\"checked\"><div class=\"tab-content border-base-300 bg-base-200 p-6\">Tab content 1</div><input type=\"radio\" name=\"my_tabs_2\" class=\"tab\" aria-label=\"Disks\"><div class=\"tab-content border-base-300 bg-base-200 p-6\">Tab content 2</div></div></div><div id=\"participants\" class=\"col-span-1\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><p class=\"text-sm text-gray-500 mt-2\">Storage[GB]</p></div></div></div></div><div id=\"project-entities\" class=\"col-span-4\"><div class=\"tabs tabs-border\"><input type=\"radio\" name=\"my_tabs_2\" class=\"tab\" aria-label=\"Workspaces\" checked=\"checked\"><div class=\"tab-content border-base-300 bg-base-200 p-6\">Tab content 1</div><input type=\"radio\" name=\"my_tabs_2\" class=\"tab\" aria-label=\"Disks\"><div class=\"tab-content border-base-300 bg-base-200 p-6\">Tab content 2</div></div></div><div id=\"participants\" class=\"col-span-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
