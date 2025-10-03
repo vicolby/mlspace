@@ -4,6 +4,7 @@ import (
 	"aispace/internal/consts"
 	"aispace/internal/storage"
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -12,7 +13,9 @@ type ProjectRepository interface {
 	GetProjects(ctx context.Context) ([]Project, error)
 	GetProject(projectId uuid.UUID) (*Project, error)
 	GetProjectParticipants(projectId uuid.UUID) ([]Participant, error)
+	GetAvailableUsers(projectId uuid.UUID) []Participant
 	CreateProject(project Project) error
+	AddParticipants(participants []uuid.UUID, projectId uuid.UUID) error
 }
 
 type PostgresProjectRepository struct {
@@ -26,9 +29,9 @@ func NewPostgresProjectRepository(uow storage.UnitOfWork) *PostgresProjectReposi
 func (p *PostgresProjectRepository) GetProjects(ctx context.Context) ([]Project, error) {
 	email := ctx.Value(consts.ContextEmail).(string)
 	query := `
-		SELECT projects.id, projects.name, projects.description, users.name, users.email, projects.cpu_limit, projects.ram_limit, projects.storage_limit 
-		FROM projects 
-		JOIN users ON projects.owner_id = users.id 
+		SELECT projects.id, projects.name, projects.description, users.name, users.email, projects.cpu_limit, projects.ram_limit, projects.storage_limit
+		FROM projects
+		JOIN users ON projects.owner_id = users.id
 		WHERE users.email = $1
 		ORDER BY projects.created_at DESC
 	`
@@ -72,9 +75,9 @@ func (p *PostgresProjectRepository) GetProjects(ctx context.Context) ([]Project,
 
 func (p *PostgresProjectRepository) GetProject(projectId uuid.UUID) (*Project, error) {
 	project_query := `
-		SELECT projects.id, projects.name, projects.description, users.name, users.email, projects.cpu_limit, projects.ram_limit, projects.storage_limit 
-		FROM projects 
-		JOIN users ON projects.owner_id = users.id 
+		SELECT projects.id, projects.name, projects.description, users.name, users.email, projects.cpu_limit, projects.ram_limit, projects.storage_limit
+		FROM projects
+		JOIN users ON projects.owner_id = users.id
 		WHERE projects.id = $1
 	`
 	rows, err := p.uow.DB().Queryx(project_query, projectId)
@@ -113,7 +116,7 @@ func (p *PostgresProjectRepository) GetProject(projectId uuid.UUID) (*Project, e
 func (p *PostgresProjectRepository) GetProjectParticipants(projectId uuid.UUID) ([]Participant, error) {
 	participants_query := `
 		SELECT u.id, u.name, u.email
-		FROM project_user_rel pur 
+		FROM project_user_rel pur
 		JOIN users u on pur.user_id = u.id
 		WHERE pur.project_id = $1
 		ORDER BY u.name
@@ -139,7 +142,7 @@ func (p *PostgresProjectRepository) GetProjectParticipants(projectId uuid.UUID) 
 
 func (p *PostgresProjectRepository) CreateProject(project Project) error {
 	query := `
-		INSERT INTO projects (id, name, description, owner_id, cpu_limit, ram_limit, storage_limit) 
+		INSERT INTO projects (id, name, description, owner_id, cpu_limit, ram_limit, storage_limit)
 		VALUES ($1, $2, $3, (SELECT id FROM users WHERE email = $7), $4, $5, $6)
 	`
 	_, err := p.uow.DB().Exec(
@@ -158,6 +161,57 @@ func (p *PostgresProjectRepository) CreateProject(project Project) error {
 	}
 
 	return nil
+}
+
+func (p *PostgresProjectRepository) GetAvailableUsers(projectId uuid.UUID) []Participant {
+	query := `
+		SELECT u.id, u.name, u.email
+		FROM users u
+		LEFT JOIN project_user_rel pur
+		ON pur.user_id = u.id
+		AND pur.project_id = $1
+		WHERE pur.user_id is NULL
+		AND u.id != (select p.owner_id from projects p where p.id = $1)
+	`
+	rows, err := p.uow.DB().Queryx(query, projectId)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	var participants []Participant
+	for rows.Next() {
+		var participant Participant
+		err = rows.StructScan(&participant)
+		if err != nil {
+			return nil
+		}
+		participants = append(participants, participant)
+	}
+
+	return participants
+}
+
+func (p *PostgresProjectRepository) AddParticipants(participants []uuid.UUID, projectId uuid.UUID) error {
+	query := "INSERT INTO project_user_rel (user_id, project_id) VALUES"
+	var args []interface{}
+	for i, participant := range participants {
+		query += fmt.Sprintf("($%d, $%d)", i*2+1, i*2+2)
+		args = append(args, participant, projectId)
+		if i < len(participants)-1 {
+			query += ", "
+		}
+	}
+	query += " ON CONFLICT DO NOTHING"
+
+	_, err := p.uow.DB().Exec(query, args...)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return nil
+
 }
 
 func ProvidePostgresProjectRepository(uow storage.UnitOfWork) ProjectRepository {

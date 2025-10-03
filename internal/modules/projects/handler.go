@@ -1,11 +1,14 @@
 package projects
 
 import (
+	"aispace/internal/consts"
 	"aispace/web/pages/projectsweb"
+	"context"
 	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
@@ -31,8 +34,21 @@ func (h *ProjectHandler) GetProjects(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectHandler) GetProject(w http.ResponseWriter, r *http.Request) {
 	handler := h.projectService.GetProject(w, r)
+	projectId := chi.URLParam(r, "project_id")
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, consts.ContextProjectId, projectId)
 	if handler != nil {
-		handler(w, r)
+		handler(w, r.WithContext(ctx))
+	}
+}
+
+func (h *ProjectHandler) GetAvailableUsers(w http.ResponseWriter, r *http.Request) {
+	projectId := chi.URLParam(r, "project_id")
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, consts.ContextProjectId, projectId)
+	handler := h.projectService.GetAvailableUsers(w, r)
+	if handler != nil {
+		handler(w, r.WithContext(ctx))
 	}
 }
 
@@ -101,6 +117,15 @@ func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 
 	handler := h.projectService.CreateProject(w, r, command)
 
+	if handler != nil {
+		handler(w, r)
+	} else {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
+func (h *ProjectHandler) AddParticipants(w http.ResponseWriter, r *http.Request) {
+	handler := h.projectService.AddParticipants(w, r)
 	if handler != nil {
 		handler(w, r)
 	} else {

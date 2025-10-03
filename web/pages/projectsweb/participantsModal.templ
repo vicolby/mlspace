@@ -1,0 +1,47 @@
+package projectsweb
+
+import "fmt"
+import "aispace/internal/consts"
+
+templ AvailableParticipantRow(participant WebProjectParticipant) {
+	<li class="list-row flex justify-between">
+		<div>
+			<div>{ participant.Name }</div>
+			<div class="text-xs uppercase font-semibold opacity-60">{ participant.Email } </div>
+		</div>
+		<input type="checkbox" name={ participant.ID.String() } class="checkbox checkbox-primary"/>
+	</li>
+}
+
+templ ParticipantModal(participants []WebProjectParticipant) {
+	<dialog id="participant_modal" class="modal" open>
+		<div class="modal-box">
+			<h3 class="text-lg font-bold mb-4">Add participants</h3>
+			<div class="modal-action">
+				<form method="dialog">
+					<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+				</form>
+			</div>
+			<form
+				id="add_users_form"
+				hx-post={ fmt.Sprintf("/projects/%s/add-users", ctx.Value(consts.ContextProjectId).(string)) }
+				hx-target="#participant_rows"
+				hx-swap="innerHTML"
+				hx-on::after-request="if (event.detail.target.id === 'participant_rows') participant_modal.close()"
+			>
+				if len(participants) != 0 {
+					<ul class="list bg-base-200 rounded-box max-h-1/2 shadow-md overflow-auto">
+						for _, participant := range participants {
+							@AvailableParticipantRow(participant)
+						}
+					</ul>
+				} else {
+					<div> No participants available </div>
+				}
+				<div class="modal-action">
+					<button class="btn btn-primary mt-4 w-full" type="submit">Save</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+}

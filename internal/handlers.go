@@ -32,6 +32,8 @@ func (h *Handlers) SetupRoutes(r *chi.Mux, provider *oidc.Provider) {
 		r.Get("/projects", h.projectHandler.GetProjects)
 		r.Post("/projects/create", h.projectHandler.CreateProject)
 		r.Get("/projects/{project_id}", h.projectHandler.GetProject)
+		r.Get("/projects/{project_id}/add-users", h.projectHandler.GetAvailableUsers)
+		r.Post("/projects/{project_id}/add-users", h.projectHandler.AddParticipants)
 	})
 }
 

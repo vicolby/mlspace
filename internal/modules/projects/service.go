@@ -113,6 +113,60 @@ func (s *ProjectService) GetProject(w http.ResponseWriter, r *http.Request) http
 	return templ.Handler(projectsweb.ProjectPageFull(webProject, webParticipants)).ServeHTTP
 }
 
+func (s *ProjectService) GetAvailableUsers(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	projectId, err := uuid.Parse(chi.URLParam(r, "project_id"))
+	var webParticipants []projectsweb.WebProjectParticipant
+
+	if err != nil {
+		log.Printf("Could not parse the project id url param: %s", err)
+		w.Header().Set("HX-Retarget", "#popup-message")
+		w.Header().Set("HX-Reswap", "outerHTML")
+		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
+	}
+
+	availableUsers := s.repository.GetAvailableUsers(projectId)
+
+	if availableUsers == nil {
+		availableUsers = []Participant{}
+	}
+
+	for _, participant := range availableUsers {
+		webParticipants = append(webParticipants, participant.ToWebParticipant(participant))
+	}
+
+	return templ.Handler(projectsweb.ParticipantModal(webParticipants)).ServeHTTP
+}
+
+func (s *ProjectService) AddParticipants(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	var participantUUIDs []uuid.UUID
+	r.ParseForm()
+	for key := range r.Form {
+		if id, err := uuid.Parse(key); err == nil {
+			participantUUIDs = append(participantUUIDs, id)
+		}
+	}
+
+	projectId, err := uuid.Parse(chi.URLParam(r, "project_id"))
+	var webParticipants []projectsweb.WebProjectParticipant
+
+	if err != nil {
+		log.Printf("Could not parse the project id url param: %s", err)
+		w.Header().Set("HX-Retarget", "#popup-message")
+		w.Header().Set("HX-Reswap", "outerHTML")
+		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
+	}
+
+	s.repository.AddParticipants(participantUUIDs, projectId)
+
+	participants, err := s.repository.GetProjectParticipants(projectId)
+
+	for _, participant := range participants {
+		webParticipants = append(webParticipants, participant.ToWebParticipant(participant))
+	}
+
+	return templ.Handler(projectsweb.ParticipantRows(webParticipants)).ServeHTTP
+}
+
 func ProvideProjectService(repository ProjectRepository) *ProjectService {
 	return NewProjectService(repository)
 }
