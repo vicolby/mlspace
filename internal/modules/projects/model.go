@@ -11,9 +11,10 @@ type Project struct {
 	Name         string    `db:"name"`
 	Description  string    `db:"description"`
 	Owner        Owner
-	CPULimit     int `db:"cpu_limit"`
-	RAMLimit     int `db:"ram_limit"`
-	StorageLimit int `db:"storage_limit"`
+	CPULimit     int    `db:"cpu_limit"`
+	RAMLimit     int    `db:"ram_limit"`
+	StorageLimit int    `db:"storage_limit"`
+	CreatedAt    string `db:"created_at"`
 }
 
 func (p *Project) ToWebProject(project Project) projectsweb.WebProject {
@@ -26,6 +27,7 @@ func (p *Project) ToWebProject(project Project) projectsweb.WebProject {
 		CPULimit:      project.CPULimit,
 		RAMLimit:      project.RAMLimit,
 		StorageLimit:  project.StorageLimit,
+		CreatedAt:     project.CreatedAt,
 	}
 
 }

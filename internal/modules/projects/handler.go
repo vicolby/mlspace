@@ -125,7 +125,20 @@ func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ProjectHandler) AddParticipants(w http.ResponseWriter, r *http.Request) {
+	projectId := chi.URLParam(r, "project_id")
+	ctx := r.Context()
+	ctx = context.WithValue(ctx, consts.ContextProjectId, projectId)
+
 	handler := h.projectService.AddParticipants(w, r)
+	if handler != nil {
+		handler(w, r.WithContext(ctx))
+	} else {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
+func (h *ProjectHandler) DeleteParticipant(w http.ResponseWriter, r *http.Request) {
+	handler := h.projectService.DeleteParticipant(w, r)
 	if handler != nil {
 		handler(w, r)
 	} else {

@@ -16,6 +16,7 @@ type ProjectRepository interface {
 	GetAvailableUsers(projectId uuid.UUID) []Participant
 	CreateProject(project Project) error
 	AddParticipants(participants []uuid.UUID, projectId uuid.UUID) error
+	DeleteParticipant(participant uuid.UUID, projectId uuid.UUID) error
 }
 
 type PostgresProjectRepository struct {
@@ -29,11 +30,27 @@ func NewPostgresProjectRepository(uow storage.UnitOfWork) *PostgresProjectReposi
 func (p *PostgresProjectRepository) GetProjects(ctx context.Context) ([]Project, error) {
 	email := ctx.Value(consts.ContextEmail).(string)
 	query := `
-		SELECT projects.id, projects.name, projects.description, users.name, users.email, projects.cpu_limit, projects.ram_limit, projects.storage_limit
-		FROM projects
-		JOIN users ON projects.owner_id = users.id
-		WHERE users.email = $1
-		ORDER BY projects.created_at DESC
+		SELECT DISTINCT
+		    p.id,
+		    p.name,
+		    p.description,
+		    owner_u.name AS owner_name,
+		    owner_u.email AS owner_email,
+		    p.cpu_limit,
+		    p.ram_limit,
+		    p.storage_limit,
+			p.created_at
+		FROM
+		    projects p
+		JOIN
+		    users owner_u ON p.owner_id = owner_u.id
+		LEFT JOIN
+		    project_user_rel pur ON p.id = pur.project_id
+		LEFT JOIN
+		    users rel_u ON pur.user_id = rel_u.id
+		WHERE
+		    owner_u.email = $1 OR rel_u.email = $1
+		ORDER BY p.created_at DESC
 	`
 	rows, err := p.uow.DB().Queryx(query, email)
 
@@ -57,6 +74,7 @@ func (p *PostgresProjectRepository) GetProjects(ctx context.Context) ([]Project,
 			&project.CPULimit,
 			&project.RAMLimit,
 			&project.StorageLimit,
+			&project.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -207,7 +225,23 @@ func (p *PostgresProjectRepository) AddParticipants(participants []uuid.UUID, pr
 	_, err := p.uow.DB().Exec(query, args...)
 
 	if err != nil {
-		fmt.Println(err)
+		return err
+	}
+
+	return nil
+
+}
+
+func (p *PostgresProjectRepository) DeleteParticipant(participant uuid.UUID, projectId uuid.UUID) error {
+	query := `
+		DELETE FROM project_user_rel pur
+		WHERE pur.user_id = $1
+		AND pur.project_id = $2
+	`
+	_, err := p.uow.DB().Exec(query, participant, projectId)
+
+	if err != nil {
+		return err
 	}
 
 	return nil

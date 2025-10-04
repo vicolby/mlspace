@@ -1,4 +1,4 @@
-package components 
+package components
 
 import "aispace/internal/consts"
 
@@ -16,7 +16,18 @@ templ Navbar() {
             <li><a href="/disks">Disks</a></li>
         </ul>
         </div>
-        <a class="text-xl p-4">AIspace</a>
+        <a id="app-title" class="text-xl p-4">MLspace</a>
+        <script>
+            document.body.addEventListener("successful-event", function(evt) {
+                const titleElement = document.querySelector("#app-title");
+                if (titleElement) {
+                    titleElement.classList.add('text-green-500');
+                    setTimeout(() => {
+                        titleElement.classList.remove('text-green-500');
+                    }, 200);
+                }
+            });
+        </script>
     </div>
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">

@@ -21,6 +21,7 @@ type WebProject struct {
 	CPULimit      int
 	RAMLimit      int
 	StorageLimit  int
+	CreatedAt     string
 }
 
 func ProjectModal(modalErrors ModalErrors) templ.Component {

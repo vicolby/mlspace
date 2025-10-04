@@ -73,33 +73,14 @@ func (s *ProjectService) CreateProject(w http.ResponseWriter, r *http.Request, c
 }
 
 func (s *ProjectService) GetProject(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
-	projectId, err := uuid.Parse(chi.URLParam(r, "project_id"))
+	projectId, _ := uuid.Parse(chi.URLParam(r, "project_id"))
 
-	if err != nil {
-		log.Printf("Could not parse the project id url param: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
-	}
+	project, _ := s.repository.GetProject(projectId)
 
-	project, err := s.repository.GetProject(projectId)
-
-	if err != nil {
-		log.Printf("Could not fetch project data: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Error while fetching the project data"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
-	}
 	webProject := project.ToWebProject(*project)
 
-	participants, err := s.repository.GetProjectParticipants(projectId)
+	participants, _ := s.repository.GetProjectParticipants(projectId)
 
-	if err != nil {
-		log.Printf("Could not fetch project participants data: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Error while fetching project participants"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
-	}
 
 	var webParticipants []projectsweb.WebProjectParticipant
 	for _, participant := range participants {
@@ -164,7 +145,25 @@ func (s *ProjectService) AddParticipants(w http.ResponseWriter, r *http.Request)
 		webParticipants = append(webParticipants, participant.ToWebParticipant(participant))
 	}
 
-	return templ.Handler(projectsweb.ParticipantRows(webParticipants)).ServeHTTP
+	return templ.Handler(projectsweb.ParticipantRows(webParticipants, true)).ServeHTTP
+}
+
+func (s *ProjectService) DeleteParticipant(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	projectId, err := uuid.Parse(chi.URLParam(r, "project_id"))
+	participantId, err := uuid.Parse(chi.URLParam(r, "participant_id"))
+
+	if err != nil {
+		log.Printf("Could not parse the project id url param: %s", err)
+		w.Header().Set("HX-Retarget", "#popup-message")
+		w.Header().Set("HX-Reswap", "outerHTML")
+		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
+	}
+
+	s.repository.DeleteParticipant(participantId, projectId)
+
+	w.Header().Set("HX-Trigger", "successful-event")
+
+	return func(w http.ResponseWriter, r *http.Request) {}
 }
 
 func ProvideProjectService(repository ProjectRepository) *ProjectService {

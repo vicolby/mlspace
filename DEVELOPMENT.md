@@ -1,4 +1,4 @@
-# Roadmao
+# Roadmap
 
 - [x] auth with keycloak
     - Debt: no data layer provided [x]
@@ -9,5 +9,7 @@
 - [x] project page
     - [x] adding users to project
     - Debt: duplicates of project Id context setting inside handlers and services
+    - [x] deleting users from project
+    - Debt: proper error and role access handling
 - project deleting
 - project editing

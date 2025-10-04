@@ -14,6 +14,7 @@ type WebProject struct {
 	CPULimit    int
 	RAMLimit    int
 	StorageLimit int
+	CreatedAt string
 }
 
 templ ProjectModal(modalErrors ModalErrors) {
@@ -38,6 +39,6 @@ templ ProjectsPartial(project_list []WebProject, modalErrors ModalErrors) {
             <div class="overflow-x-auto rounded-box border border-base-200 bg-base-100">
                 @ProjectTable(project_list)
             </div>
-        </div>   
+        </div>
     </div>
 }
