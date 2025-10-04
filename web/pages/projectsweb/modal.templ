@@ -1,101 +1,57 @@
 package projectsweb
 
-import "strings"
-
-
-type ModalErrors struct {
-	Errors map[string]string
-    Values map[string]string
+templ NewProjectForm() {
+	<form
+		id="new_project_form"
+		hx-post="/projects/create"
+		hx-target="#project_list"
+		hx-swap="beforebegin"
+		hx-on::after-request="if (event.detail.target.id === 'project_list') project_modal.close()"
+	>
+		<fieldset class="fieldset flex flex-col">
+			<legend class="fieldset-legend">Project name</legend>
+			<input name="name" type="text" class="input validator w-full" placeholder="NER" minlength="3" maxlength="100" required/>
+			<p class="validator-hint">Must be between 3 and 100 in length</p>
+			<legend class="fieldset-legend">Project description</legend>
+			<textarea name="description" type="text" class="textarea validator w-full" minlength="10" maxlength="500" placeholder="NER for bank cheques" required></textarea>
+			<p class="validator-hint">Must be between 10 and 500 in length</p>
+		</fieldset>
+		<fieldset class="fieldset grid grid-cols-3 gap-4 mt-4">
+			<div>
+				<legend class="fieldset-legend">CPU limit</legend>
+				<input name="cpu_limit" type="number" class="input validator input w-full" min="1" placeholder="1" required/>
+				<p class="validator-hint">>= 1 </p>
+			</div>
+			<div>
+				<legend class="fieldset-legend">RAM limit</legend>
+				<input name="ram_limit" type="number" class="input validator w-full" min="1" placeholder="1" required value/>
+				<p class="validator-hint">>= 1 </p>
+			</div>
+			<div>
+				<legend class="fieldset-legend">Storage limit</legend>
+				<input name="storage_limit" type="number" class="input validator w-full" min="1" placeholder="1" required value/>
+				<p class="validator-hint">>= 1 </p>
+			</div>
+		</fieldset>
+		<div class="modal-action">
+			<button class="btn btn-primary mt-1" type="submit">Create</button>
+		</div>
+	</form>
 }
 
-func (m ModalErrors) IsNotEmpty() bool {
-	return m.Errors != nil && len(m.Errors) > 0
-}
-
-func (m ModalErrors) FirstLimitError() string {
-    for _, val := range m.Errors {
-        if val != "" && strings.Contains(val, "Limit") {
-            return val
-        }
-    }
-    return ""
-}
-
-templ NewProjectForm(modalErrors ModalErrors) {
-    <form id="new_project_form" 
-        hx-post="/projects/create" 
-        hx-target="#project_list" 
-        hx-swap="beforebegin"
-        hx-on::after-request="if (event.detail.target.id === 'project_list') project_modal.close()"
-    >
-        <fieldset class="fieldset flex flex-col">
-            <legend class="fieldset-legend">Project name</legend>
-            <input name="name" type="text" class="input w-full" placeholder="NER" required value={modalErrors.Values["name"]}/>
-            if modalErrors.Errors["Name"] != "" {
-                <p id="name_error" class="label text-error text-sm mt-1">{modalErrors.Errors["Name"]}</p>
-            } else {
-                <p id="name_error" class="label text-error text-sm mt-1 text-transparent">placeholder</p>
-            }
-            <legend class="fieldset-legend">Project description</legend>
-            <textarea name="description" type="text" class="textarea w-full" placeholder="NER for bank cheques" required>
-                { modalErrors.Values["description"] }
-            </textarea>
-            if modalErrors.Errors["Description"] != "" {
-                <p id="description_error" class="label text-error text-sm mt-1">{modalErrors.Errors["Description"]}</p>
-            } else {
-                <p id="description_error" class="label text-transparent text-sm mt-1 text-transparent">placeholder</p>
-            }
-        </fieldset>
-        <fieldset class="fieldset grid grid-cols-3 gap-4 mt-4">
-            <div>
-                <legend class="fieldset-legend">CPU limit</legend>
-                if modalErrors.Errors["CPULimit"] != "" {
-                    <input name="cpu_limit" type="number" class="input input-error w-full" placeholder="1" required value={modalErrors.Values["cpu_limit"]}/>
-                } else {
-                    <input name="cpu_limit" type="number" class="input input w-full" placeholder="1" required value={modalErrors.Values["cpu_limit"]}/>
-                }
-            </div>
-            <div>
-                <legend class="fieldset-legend">RAM limit</legend>
-                if modalErrors.Errors["RAMLimit"] != "" {
-                    <input name="ram_limit" type="number" class="input input-error w-full" placeholder="1" required value={modalErrors.Values["ram_limit"]}/>
-                } else {
-                    <input name="ram_limit" type="number" class="input w-full" placeholder="1" required value={modalErrors.Values["ram_limit"]}/>
-                }
-            </div>
-            <div>
-                <legend class="fieldset-legend">Storage limit</legend>
-                if modalErrors.Errors["StorageLimit"] != "" {
-                    <input name="storage_limit" type="number" class="input input-error w-full" placeholder="1" required value={modalErrors.Values["storage_limit"]}/>
-                } else {
-                    <input name="storage_limit" type="number" class="input w-full" placeholder="1" required value={modalErrors.Values["storage_limit"]}/>
-                }
-            </div>
-            if modalErrors.IsNotEmpty() {
-                <p id="limit_error" class="label text-error text-sm mt-1">{modalErrors.FirstLimitError()}</p>
-            } else {
-                <p id="limit_error" class="label text-transparent text-sm mt-1 text-transparent">placeholder</p>
-            }
-        </fieldset>
-        <div class="modal-action">
-            <button class="btn btn-primary mt-1" type="submit">Create</button>
-        </div>
-    </form>
-}
-
-templ NewProjectModal(modalErrors ModalErrors) {
-    <dialog id="project_modal" class="modal">
-        <div class="modal-box">
-            <h3 class="text-lg font-bold mb-4">New project</h3>
-            <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-                </form>
-            </div>
-            @NewProjectForm(modalErrors)
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
+templ NewProjectModal() {
+	<dialog id="project_modal" class="modal">
+		<div class="modal-box">
+			<h3 class="text-lg font-bold mb-4">New project</h3>
+			<div class="modal-action">
+				<form method="dialog">
+					<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+				</form>
+			</div>
+			@NewProjectForm()
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>close</button>
+		</form>
+	</dialog>
 }

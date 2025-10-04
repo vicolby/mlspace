@@ -10,6 +10,6 @@
     - [x] adding users to project
     - Debt: duplicates of project Id context setting inside handlers and services [x]
     - [x] deleting users from project
-    - Debt: proper error and role access handling
+    - Debt: proper error and role access handling [x]
 - project deleting
 - project editing

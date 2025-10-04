@@ -29,7 +29,7 @@ func Base() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" data-theme=\"dark\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link href=\"https://cdn.jsdelivr.net/npm/daisyui@5\" rel=\"stylesheet\" type=\"text/css\"><script src=\"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10\"></script><title>AIspace</title></head><body class=\"bg-base-100\"><main id=\"main\"><div id=\"popup-message\"></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!doctype html><html lang=\"en\" data-theme=\"dark\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><link href=\"https://cdn.jsdelivr.net/npm/daisyui@5\" rel=\"stylesheet\" type=\"text/css\"><script src=\"https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4\"></script><script src=\"https://unpkg.com/htmx.org@1.9.10\"></script><title>MLspace</title></head><body class=\"bg-base-100\"><main id=\"main\"><div id=\"toast-message\" class=\"toast toast-top toast-center hidden fixed z-50\"><div id=\"toast-alert\" class=\"alert alert-error\"><span></span></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -37,7 +37,7 @@ func Base() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</main></body><script>\n            document.body.addEventListener(\"unsuccessful-event\", function(evt) {\n                const toast = document.querySelector(\"#toast-message\");\n                const alertDiv = toast.querySelector(\"#toast-alert\");\n                const spanElement = alertDiv.querySelector(\"span\");\n                const errorText = evt.detail.value\n                if (toast && spanElement && errorText) {\n                    spanElement.textContent = errorText;\n                    toast.classList.remove('hidden');\n                    setTimeout(() => {\n                        toast.classList.add('hidden');\n                    }, 1000);\n                }\n            });\n        </script></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -24,7 +24,7 @@ type WebProject struct {
 	CreatedAt     string
 }
 
-func ProjectModal(modalErrors ModalErrors) templ.Component {
+func ProjectModal() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -49,7 +49,7 @@ func ProjectModal(modalErrors ModalErrors) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NewProjectModal(modalErrors).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NewProjectModal().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -57,7 +57,7 @@ func ProjectModal(modalErrors ModalErrors) templ.Component {
 	})
 }
 
-func ProjectsFull(project_list []WebProject, modalErrors ModalErrors) templ.Component {
+func ProjectsFull(project_list []WebProject) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -98,7 +98,7 @@ func ProjectsFull(project_list []WebProject, modalErrors ModalErrors) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = ProjectsPartial(project_list, modalErrors).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ProjectsPartial(project_list).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -112,7 +112,7 @@ func ProjectsFull(project_list []WebProject, modalErrors ModalErrors) templ.Comp
 	})
 }
 
-func ProjectsPartial(project_list []WebProject, modalErrors ModalErrors) templ.Component {
+func ProjectsPartial(project_list []WebProject) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -137,7 +137,7 @@ func ProjectsPartial(project_list []WebProject, modalErrors ModalErrors) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = ProjectModal(modalErrors).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ProjectModal().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

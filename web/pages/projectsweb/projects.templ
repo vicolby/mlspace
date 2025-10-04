@@ -4,41 +4,39 @@ import "aispace/web/components"
 import "aispace/web/layouts"
 import "github.com/google/uuid"
 
-
 type WebProject struct {
-    ID          uuid.UUID
-	Name        string
-	Description string
-	OwnerUsername     string
-    OwnerEmail string
-	CPULimit    int
-	RAMLimit    int
-	StorageLimit int
-	CreatedAt string
+	ID            uuid.UUID
+	Name          string
+	Description   string
+	OwnerUsername string
+	OwnerEmail    string
+	CPULimit      int
+	RAMLimit      int
+	StorageLimit  int
+	CreatedAt     string
 }
 
-templ ProjectModal(modalErrors ModalErrors) {
-    <button class="btn btn-primary" onclick="project_modal.showModal()">New project</button>
-    @NewProjectModal(modalErrors)
+templ ProjectModal() {
+	<button class="btn btn-primary" onclick="project_modal.showModal()">New project</button>
+	@NewProjectModal()
 }
 
-
-templ ProjectsFull(project_list []WebProject, modalErrors ModalErrors) {
-    @layouts.Base() {
-        @components.Navbar()
-        @ProjectsPartial(project_list, modalErrors)
-    }
+templ ProjectsFull(project_list []WebProject) {
+	@layouts.Base() {
+		@components.Navbar()
+		@ProjectsPartial(project_list)
+	}
 }
 
-templ ProjectsPartial(project_list []WebProject, modalErrors ModalErrors) {
-    <div id="main-container">
-        <div class="mt-6 flex justify-end p-4">
-            @ProjectModal(modalErrors)
-        </div>
-        <div class="projects-container mt-4 p-4">
-            <div class="overflow-x-auto rounded-box border border-base-200 bg-base-100">
-                @ProjectTable(project_list)
-            </div>
-        </div>
-    </div>
+templ ProjectsPartial(project_list []WebProject) {
+	<div id="main-container">
+		<div class="mt-6 flex justify-end p-4">
+			@ProjectModal()
+		</div>
+		<div class="projects-container mt-4 p-4">
+			<div class="overflow-x-auto rounded-box border border-base-200 bg-base-100">
+				@ProjectTable(project_list)
+			</div>
+		</div>
+	</div>
 }

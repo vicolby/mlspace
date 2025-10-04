@@ -9,14 +9,32 @@ templ Base() {
 			<link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css"/>
 			<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 			<script src="https://unpkg.com/htmx.org@1.9.10"></script>
-			<title>AIspace</title>
+			<title>MLspace</title>
 		</head>
 		<body class="bg-base-100">
 			<main id="main">
-				<div id="popup-message"></div>
+				<div id="toast-message" class="toast toast-top toast-center hidden fixed z-50">
+					<div id="toast-alert" class="alert alert-error">
+						<span></span>
+					</div>
+				</div>
 				{ children... }
 			</main>
 		</body>
-
+		<script>
+            document.body.addEventListener("unsuccessful-event", function(evt) {
+                const toast = document.querySelector("#toast-message");
+                const alertDiv = toast.querySelector("#toast-alert");
+                const spanElement = alertDiv.querySelector("span");
+                const errorText = evt.detail.value
+                if (toast && spanElement && errorText) {
+                    spanElement.textContent = errorText;
+                    toast.classList.remove('hidden');
+                    setTimeout(() => {
+                        toast.classList.add('hidden');
+                    }, 1000);
+                }
+            });
+        </script>
 	</html>
 }

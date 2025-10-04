@@ -37,6 +37,7 @@ templ ParticipantRow(participant_id uuid.UUID, username string, email string, is
 				hx-delete={ fmt.Sprintf("/projects/%s/participants/%s", ctx.Value(consts.ContextProjectId), participant_id) }
 				hx-target={ fmt.Sprintf("#%s", participant_id.String()) }
 				hx-swap="delete"
+				hx-confirm="Are you sure?"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-trash size-[1.2em]" viewBox="0 0 16 16">
 					<path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"></path>

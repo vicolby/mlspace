@@ -1,16 +1,9 @@
 package projects
 
 import (
-	"aispace/web/pages/projectsweb"
-	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/go-playground/locales/en"
-	ut "github.com/go-playground/universal-translator"
-	en_translations "github.com/go-playground/validator/v10/translations/en"
-
-	"github.com/a-h/templ"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -71,39 +64,13 @@ func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		StorageLimit: storage_limit,
 	}
 
-	var (
-		uni      *ut.UniversalTranslator
-		validate *validator.Validate
-	)
+	var validate *validator.Validate
 
 	validate = validator.New()
-	enLocale := en.New()
-	uni = ut.New(enLocale, enLocale)
-
-	trans, _ := uni.GetTranslator("en")
-	en_translations.RegisterDefaultTranslations(validate, trans)
-
 	err = validate.Struct(command)
 
 	if err != nil {
-		modalErrors := projectsweb.ModalErrors{Errors: make(map[string]string), Values: make(map[string]string)}
-		modalErrors.Values["name"] = r.FormValue("name")
-		modalErrors.Values["description"] = r.FormValue("description")
-		modalErrors.Values["cpu_limit"] = r.FormValue("cpu_limit")
-		modalErrors.Values["ram_limit"] = r.FormValue("ram_limit")
-		modalErrors.Values["storage_limit"] = r.FormValue("storage_limit")
-
-		var validateErrs validator.ValidationErrors
-
-		if errors.As(err, &validateErrs) {
-			for _, err := range validateErrs {
-				modalErrors.Errors[err.Field()] = err.Translate(trans)
-			}
-		}
-
-		w.Header().Set("HX-Retarget", "#new_project_form")
-		w.Header().Set("HX-Reswap", "innerHTML")
-		templ.Handler(projectsweb.NewProjectForm(modalErrors)).ServeHTTP(w, r)
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
 

@@ -1,13 +1,12 @@
 package projects
 
 import (
+	"aispace/internal/base"
 	"aispace/internal/consts"
-	"aispace/web/components"
 	"aispace/web/pages/projectsweb"
 	"log"
 	"net/http"
 
-	"github.com/a-h/templ"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -26,9 +25,7 @@ func (s *ProjectService) GetProjects(w http.ResponseWriter, r *http.Request) htt
 
 	if err != nil {
 		log.Printf("Error while fetching projects: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Error fetching projects"), templ.WithStatus(http.StatusInternalServerError)).ServeHTTP
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
 	}
 
 	var webProjectList []projectsweb.WebProject
@@ -38,9 +35,9 @@ func (s *ProjectService) GetProjects(w http.ResponseWriter, r *http.Request) htt
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
-		return templ.Handler(projectsweb.ProjectsPartial(webProjectList, projectsweb.ModalErrors{})).ServeHTTP
+		return base.Serve(projectsweb.ProjectsPartial(webProjectList), w)
 	}
-	return templ.Handler(projectsweb.ProjectsFull(webProjectList, projectsweb.ModalErrors{})).ServeHTTP
+	return base.Serve(projectsweb.ProjectsFull(webProjectList), w)
 }
 
 func (s *ProjectService) CreateProject(w http.ResponseWriter, r *http.Request, command CreateProjectCommand) http.HandlerFunc {
@@ -62,14 +59,12 @@ func (s *ProjectService) CreateProject(w http.ResponseWriter, r *http.Request, c
 	err := s.repository.CreateProject(project)
 
 	if err != nil {
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Error while creating a project"), templ.WithStatus(http.StatusInternalServerError)).ServeHTTP
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
 	}
 
 	webProject := project.ToWebProject(project)
 
-	return templ.Handler(projectsweb.ProjectRow(webProject)).ServeHTTP
+	return base.Serve(projectsweb.ProjectRow(webProject), w)
 }
 
 func (s *ProjectService) GetProject(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
@@ -81,17 +76,16 @@ func (s *ProjectService) GetProject(w http.ResponseWriter, r *http.Request) http
 
 	participants, _ := s.repository.GetProjectParticipants(projectId)
 
-
 	var webParticipants []projectsweb.WebProjectParticipant
 	for _, participant := range participants {
 		webParticipants = append(webParticipants, participant.ToWebParticipant(participant))
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
-		return templ.Handler(projectsweb.ProjectPagePartial(webProject, webParticipants)).ServeHTTP
+		return base.Serve(projectsweb.ProjectPagePartial(webProject, webParticipants), w)
 	}
 
-	return templ.Handler(projectsweb.ProjectPageFull(webProject, webParticipants)).ServeHTTP
+	return base.Serve(projectsweb.ProjectPageFull(webProject, webParticipants), w)
 }
 
 func (s *ProjectService) GetAvailableUsers(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
@@ -99,10 +93,7 @@ func (s *ProjectService) GetAvailableUsers(w http.ResponseWriter, r *http.Reques
 	var webParticipants []projectsweb.WebProjectParticipant
 
 	if err != nil {
-		log.Printf("Could not parse the project id url param: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
+		return base.ErrorServe("Bad request brother", http.StatusBadRequest, w)
 	}
 
 	availableUsers := s.repository.GetAvailableUsers(projectId)
@@ -115,11 +106,12 @@ func (s *ProjectService) GetAvailableUsers(w http.ResponseWriter, r *http.Reques
 		webParticipants = append(webParticipants, participant.ToWebParticipant(participant))
 	}
 
-	return templ.Handler(projectsweb.ParticipantModal(webParticipants)).ServeHTTP
+	return base.Serve(projectsweb.ParticipantModal(webParticipants), w)
 }
 
 func (s *ProjectService) AddParticipants(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
 	var participantUUIDs []uuid.UUID
+
 	r.ParseForm()
 	for key := range r.Form {
 		if id, err := uuid.Parse(key); err == nil {
@@ -131,10 +123,7 @@ func (s *ProjectService) AddParticipants(w http.ResponseWriter, r *http.Request)
 	var webParticipants []projectsweb.WebProjectParticipant
 
 	if err != nil {
-		log.Printf("Could not parse the project id url param: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
+		return base.ErrorServe("Bad request brother", http.StatusBadRequest, w)
 	}
 
 	s.repository.AddParticipants(participantUUIDs, projectId)
@@ -145,7 +134,7 @@ func (s *ProjectService) AddParticipants(w http.ResponseWriter, r *http.Request)
 		webParticipants = append(webParticipants, participant.ToWebParticipant(participant))
 	}
 
-	return templ.Handler(projectsweb.ParticipantRows(webParticipants, true)).ServeHTTP
+	return base.Serve(projectsweb.ParticipantRows(webParticipants, true), w)
 }
 
 func (s *ProjectService) DeleteParticipant(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
@@ -153,17 +142,12 @@ func (s *ProjectService) DeleteParticipant(w http.ResponseWriter, r *http.Reques
 	participantId, err := uuid.Parse(chi.URLParam(r, "participant_id"))
 
 	if err != nil {
-		log.Printf("Could not parse the project id url param: %s", err)
-		w.Header().Set("HX-Retarget", "#popup-message")
-		w.Header().Set("HX-Reswap", "outerHTML")
-		return templ.Handler(components.ErrorPopup("Project id must be a uuid string"), templ.WithStatus(http.StatusBadRequest)).ServeHTTP
+		return base.ErrorServe("Bad request brother", http.StatusBadRequest, w)
 	}
 
 	s.repository.DeleteParticipant(participantId, projectId)
 
-	w.Header().Set("HX-Trigger", "successful-event")
-
-	return func(w http.ResponseWriter, r *http.Request) {}
+	return base.ServeNoSwap(w)
 }
 
 func ProvideProjectService(repository ProjectRepository) *ProjectService {
