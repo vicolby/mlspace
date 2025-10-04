@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 )
 
@@ -48,6 +50,11 @@ func AuthMiddleware(provider *oidc.Provider, config oauth2.Config) func(http.Han
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, consts.ContextEmail, claims.Email)
 			ctx = context.WithValue(ctx, consts.ContextUsername, claims.Name)
+
+			projectId, err := uuid.Parse(chi.URLParam(r, "project_id"))
+			if err == nil {
+				ctx = context.WithValue(ctx, consts.ContextProjectId, projectId)
+			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

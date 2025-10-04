@@ -8,7 +8,7 @@
     - Debt: validations inside handler and context vars inside middlware package [x][]
 - [x] project page
     - [x] adding users to project
-    - Debt: duplicates of project Id context setting inside handlers and services
+    - Debt: duplicates of project Id context setting inside handlers and services [x]
     - [x] deleting users from project
     - Debt: proper error and role access handling
 - project deleting

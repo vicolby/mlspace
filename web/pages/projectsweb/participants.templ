@@ -34,7 +34,7 @@ templ ParticipantRow(participant_id uuid.UUID, username string, email string, is
 		if is_owner {
 			<button
 				class="btn btn-square btn-ghost"
-				hx-delete={ fmt.Sprintf("/projects/%s/participants/%s", ctx.Value(consts.ContextProjectId).(string), participant_id.String()) }
+				hx-delete={ fmt.Sprintf("/projects/%s/participants/%s", ctx.Value(consts.ContextProjectId), participant_id) }
 				hx-target={ fmt.Sprintf("#%s", participant_id.String()) }
 				hx-swap="delete"
 			>
@@ -60,7 +60,7 @@ templ ParticipantsHeader(is_owner bool) {
 			<div class="p-2">
 				<button
 					class="btn btn-circle"
-					hx-get={ fmt.Sprintf("/projects/%s/add-users", ctx.Value(consts.ContextProjectId).(string)) }
+					hx-get={ fmt.Sprintf("/projects/%s/add-users", ctx.Value(consts.ContextProjectId)) }
 					hx-target="#participant_modal_holder"
 					hx-swap="innerHTML"
 				>

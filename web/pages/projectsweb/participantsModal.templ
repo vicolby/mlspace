@@ -24,7 +24,7 @@ templ ParticipantModal(participants []WebProjectParticipant) {
 			</div>
 			<form
 				id="add_users_form"
-				hx-post={ fmt.Sprintf("/projects/%s/add-users", ctx.Value(consts.ContextProjectId).(string)) }
+				hx-post={ fmt.Sprintf("/projects/%s/add-users", ctx.Value(consts.ContextProjectId)) }
 				hx-target="#participant_rows"
 				hx-swap="innerHTML"
 				hx-on::after-request="if (event.detail.target.id === 'participant_rows') participant_modal.close()"
