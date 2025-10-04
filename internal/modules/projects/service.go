@@ -70,6 +70,10 @@ func (s *ProjectService) CreateProject(w http.ResponseWriter, r *http.Request, c
 func (s *ProjectService) GetProject(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
 	projectId, _ := uuid.Parse(chi.URLParam(r, "project_id"))
 
+	if !s.repository.CanGetProject(projectId, r.Context()) {
+		return base.ErrorServeRedirect("You can't, brother", http.StatusBadRequest, w)
+	}
+
 	project, _ := s.repository.GetProject(projectId)
 
 	webProject := project.ToWebProject(*project)

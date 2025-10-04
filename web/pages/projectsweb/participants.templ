@@ -26,7 +26,7 @@ templ ParticipantOwnerRow(participant_id uuid.UUID, username string, email strin
 }
 
 templ ParticipantRow(participant_id uuid.UUID, username string, email string, is_owner bool) {
-	<li id={ participant_id.String() } class="list-row flex justify-between">
+	<li id={ fmt.Sprintf("participant_%s", participant_id.String()) } class="list-row flex justify-between">
 		<div>
 			<div>{ username }</div>
 			<div class="text-xs uppercase font-semibold opacity-60">{ email } </div>
@@ -35,7 +35,7 @@ templ ParticipantRow(participant_id uuid.UUID, username string, email string, is
 			<button
 				class="btn btn-square btn-ghost"
 				hx-delete={ fmt.Sprintf("/projects/%s/participants/%s", ctx.Value(consts.ContextProjectId), participant_id) }
-				hx-target={ fmt.Sprintf("#%s", participant_id.String()) }
+				hx-target={ fmt.Sprintf("#participant_%s", participant_id.String()) }
 				hx-swap="delete"
 				hx-confirm="Are you sure?"
 			>
