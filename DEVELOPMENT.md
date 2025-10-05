@@ -11,5 +11,5 @@
     - Debt: duplicates of project Id context setting inside handlers and services [x]
     - [x] deleting users from project
     - Debt: proper error and role access handling [x]
-- project deleting
+- [x] project deleting (only from projects list page for now)
 - project editing
