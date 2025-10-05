@@ -18,6 +18,8 @@ type ProjectRepository interface {
 	AddParticipants(participants []uuid.UUID, projectId uuid.UUID) error
 	DeleteParticipant(participant uuid.UUID, projectId uuid.UUID) error
 	CanGetProject(projectId uuid.UUID, ctx context.Context) bool
+	DeleteProject(projectId uuid.UUID) error
+	CanDeleteProject(projectId uuid.UUID, ctx context.Context) bool
 }
 
 type PostgresProjectRepository struct {
@@ -292,6 +294,39 @@ func (p *PostgresProjectRepository) CanGetProject(projectId uuid.UUID, ctx conte
 		return false
 	}
 
+	defer rows.Close()
+
+	return rows.Next()
+}
+
+func (p *PostgresProjectRepository) DeleteProject(projectId uuid.UUID) error {
+	query := `
+		DELETE FROM projects p
+		WHERE p.id = $1
+	`
+	_, err := p.uow.DB().Exec(query, projectId)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *PostgresProjectRepository) CanDeleteProject(projectId uuid.UUID, ctx context.Context) bool {
+	email := ctx.Value(consts.ContextEmail).(string)
+
+	query := `
+		SELECT 1 FROM projects p
+		JOIN users u
+		ON u.id = p.owner_id
+		WHERE p.id = $1 and u.email = $2
+	`
+
+	rows, err := p.uow.DB().Queryx(query, projectId, email)
+
+	if err != nil {
+		return false
+	}
 	defer rows.Close()
 
 	return rows.Next()

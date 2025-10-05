@@ -29,7 +29,7 @@ func ProjectTable(project_list []WebProject) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<table class=\"table table-compact w-full\"><thead><tr><th>Name</th><th>Description</th><th>Owner</th><th>CPU Limit</th><th>RAM Limit</th><th>Storage Limit</th></tr></thead> <tbody id=\"project_list\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<table class=\"table table-compact w-full\"><thead><tr><th>Name</th><th>Description</th><th>Owner</th><th>CPU Limit</th><th>RAM Limit</th><th>Storage Limit</th><th></th></tr></thead> <tbody id=\"project_list\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

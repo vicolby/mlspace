@@ -101,6 +101,15 @@ func (h *ProjectHandler) DeleteParticipant(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+func (h *ProjectHandler) DeleteProject(w http.ResponseWriter, r *http.Request) {
+	handler := h.projectService.DeleteProject(w, r)
+	if handler != nil {
+		handler(w, r)
+	} else {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
+
 func ProvideProjectHandler(projectService *ProjectService) *ProjectHandler {
 	return NewProjectHandler(projectService)
 }

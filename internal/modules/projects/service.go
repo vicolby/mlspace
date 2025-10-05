@@ -154,6 +154,26 @@ func (s *ProjectService) DeleteParticipant(w http.ResponseWriter, r *http.Reques
 	return base.ServeNoSwap(w)
 }
 
+func (s *ProjectService) DeleteProject(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	projectId, err := uuid.Parse(chi.URLParam(r, "project_id"))
+
+	if err != nil {
+		return base.ErrorServe("Bad request brother", http.StatusBadRequest, w)
+	}
+
+	if !s.repository.CanDeleteProject(projectId, r.Context()) {
+		return base.ErrorServe("You can't brother", http.StatusBadRequest, w)
+	}
+
+	err = s.repository.DeleteProject(projectId)
+
+	if err != nil {
+		return base.ErrorServe("Something went wrong", http.StatusBadRequest, w)
+	}
+
+	return base.ServeNoSwap(w)
+}
+
 func ProvideProjectService(repository ProjectRepository) *ProjectService {
 	return NewProjectService(repository)
 }
