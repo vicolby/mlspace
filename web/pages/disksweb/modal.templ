@@ -1,0 +1,64 @@
+package disksweb
+
+templ DiskProjects(projects []WebDiskProject) {
+	for _, project := range projects {
+		<option value={ project.Name }>{ project.Name }</option>
+	}
+}
+
+templ NewDiskForm() {
+	<form
+		id="new_disk_form"
+		hx-post="/disks/create"
+		hx-target="#disk_list"
+		hx-swap="beforebegin"
+		hx-on::after-request="if (event.detail.target.id === 'disk_list') disk_modal.close()"
+	>
+		<fieldset class="fieldset flex flex-col">
+			<legend class="fieldset-legend">Disk name</legend>
+			<input name="name" type="text" class="input validator w-full" placeholder="My disk" minlength="3" maxlength="100" required/>
+			<p class="validator-hint">Must be between 3 and 100 in length</p>
+			<legend class="fieldset-legend">Project</legend>
+			<select
+				id="project_select"
+				hx-get="/disks/project-search"
+				hx-target="#project_select"
+				hx-trigger="delay:100ms, load"
+				hx-swap="innerHTML"
+				name="project_name"
+				class="select w-full"
+				required
+			>
+				<option value="">Select a project</option>
+			</select>
+			<input name="size" type="number" placeholder="Size" class="input validator w-full" min="1" required />
+			<p class="validator-hint"> >= 1</p>
+			<fieldset class="fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full">
+			  <label class="label">
+			    <input type="checkbox" class="checkbox" />
+				    Make it shared
+			  </label>
+			</fieldset>
+		</fieldset>
+		<div class="modal-action">
+			<button class="btn btn-primary mt-1" type="submit">Create</button>
+		</div>
+	</form>
+}
+
+templ NewDiskModal() {
+	<dialog id="disk_modal" class="modal">
+		<div class="modal-box">
+			<h3 class="text-lg font-bold mb-4">New disk</h3>
+			<div class="modal-action">
+				<form method="dialog">
+					<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+				</form>
+			</div>
+			@NewDiskForm()
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>close</button>
+		</form>
+	</dialog>
+}

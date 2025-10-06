@@ -1,5 +1,6 @@
 # Roadmap
 
+## Projects
 - [x] auth with keycloak
     - Debt: no data layer provided [x]
 - [x] user logout
@@ -13,3 +14,8 @@
     - Debt: proper error and role access handling [x]
 - [x] project deleting (only from projects list page for now)
 - project editing
+
+## Disks
+- [x] disk list
+- [x] create disk modal
+  - debt: error handling

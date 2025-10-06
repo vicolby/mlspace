@@ -1,0 +1,48 @@
+package disksweb
+
+import (
+	"aispace/web/components"
+	"aispace/web/layouts"
+	"github.com/google/uuid"
+)
+
+type WebDisk struct {
+	ID            uuid.UUID
+	Name          string
+	OwnerUsername string
+	OwnerEmail    string
+	Size          int
+	Shared        bool
+	Project       string
+	CreatedAt     string
+}
+
+type WebDiskProject struct {
+	ID uuid.UUID
+	Name string
+}
+
+templ DiskModal() {
+	<button class="btn btn-primary" onclick="disk_modal.showModal()">New disk</button>
+	@NewDiskModal()
+}
+
+templ DisksFull(disk_list []WebDisk) {
+	@layouts.Base() {
+		@components.Navbar()
+		@DisksPartial(disk_list)
+	}
+}
+
+templ DisksPartial(disk_list []WebDisk) {
+	<div id="main-container">
+		<div class="mt-6 flex justify-end p-4">
+			@DiskModal()
+		</div>
+		<div class="projects-container mt-4 p-4">
+			<div class="overflow-x-auto rounded-box border border-base-200 bg-base-100">
+				@DiskTable(disk_list)
+			</div>
+		</div>
+	</div>
+}

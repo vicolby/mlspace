@@ -3,6 +3,7 @@ package internal
 import (
 	"aispace/internal/config"
 	"aispace/internal/middlewares"
+	"aispace/internal/modules/disks"
 	"aispace/internal/modules/projects"
 	"aispace/internal/modules/users"
 
@@ -16,10 +17,23 @@ type Handlers struct {
 	oauth2Config   oauth2.Config
 	authHandler    *users.AuthHandler
 	projectHandler *projects.ProjectHandler
+	diskHandler    *disks.DiskHandler
 }
 
-func NewHandlers(cfg *config.Config, oauth2Config oauth2.Config, authHandler *users.AuthHandler, projectHandler *projects.ProjectHandler) *Handlers {
-	return &Handlers{cfg: cfg, oauth2Config: oauth2Config, authHandler: authHandler, projectHandler: projectHandler}
+func NewHandlers(
+	cfg *config.Config,
+	oauth2Config oauth2.Config,
+	authHandler *users.AuthHandler,
+	projectHandler *projects.ProjectHandler,
+	diskHandler *disks.DiskHandler,
+) *Handlers {
+	return &Handlers{
+		cfg:            cfg,
+		oauth2Config:   oauth2Config,
+		authHandler:    authHandler,
+		projectHandler: projectHandler,
+		diskHandler:    diskHandler,
+	}
 }
 
 func (h *Handlers) SetupRoutes(r *chi.Mux, provider *oidc.Provider) {
@@ -29,6 +43,7 @@ func (h *Handlers) SetupRoutes(r *chi.Mux, provider *oidc.Provider) {
 		r.Use(middlewares.AuthMiddleware(provider, h.oauth2Config))
 		r.Get("/", h.projectHandler.GetProjects)
 		r.Get("/auth/logout", h.authHandler.Logout)
+		// PROJECTS
 		r.Get("/projects", h.projectHandler.GetProjects)
 		r.Post("/projects/create", h.projectHandler.CreateProject)
 		r.Get("/projects/{project_id}", h.projectHandler.GetProject)
@@ -36,6 +51,9 @@ func (h *Handlers) SetupRoutes(r *chi.Mux, provider *oidc.Provider) {
 		r.Post("/projects/{project_id}/add-users", h.projectHandler.AddParticipants)
 		r.Delete("/projects/{project_id}/participants/{participant_id}", h.projectHandler.DeleteParticipant)
 		r.Delete("/projects/{project_id}", h.projectHandler.DeleteProject)
+		// DISKS
+		r.Get("/disks", h.diskHandler.GetDisks)
+		r.Get("/disks/project-search", h.diskHandler.GetProjectsForDisk)
 	})
 }
 

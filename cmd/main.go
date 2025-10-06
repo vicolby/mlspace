@@ -3,6 +3,7 @@ package main
 import (
 	"aispace/internal"
 	"aispace/internal/config"
+	"aispace/internal/modules/disks"
 	"aispace/internal/modules/projects"
 	"aispace/internal/modules/users"
 	"aispace/internal/storage"
@@ -38,12 +39,18 @@ func main() {
 			internal.ProvideRouter,
 			storage.NewDB,
 			storage.NewUnitOfWork,
+			// users
 			users.ProvidePostgresUserRepository,
 			users.ProvideAuthService,
 			users.ProvideAuthHandler,
+			// projects
 			projects.ProvidePostgresProjectRepository,
 			projects.ProvideProjectService,
 			projects.ProvideProjectHandler,
+			// disks
+			disks.ProvidePostgresDiskRepository,
+			disks.ProvideDiskService,
+			disks.ProvideDiskHandler,
 			internal.NewHandlers,
 			ProvideServer,
 		),

@@ -1,0 +1,22 @@
+package disksweb
+
+templ DiskTable(disk_list []WebDisk) {
+	<table class="table table-compact w-full">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Owner</th>
+				<th>Size</th>
+				<th>Shared</th>
+				<th>Project</th>
+				<th>Created</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody id="disk_list">
+			for _, p := range disk_list {
+				@DiskRow(p)
+			}
+		</tbody>
+	</table>
+}
