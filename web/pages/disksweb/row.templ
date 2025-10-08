@@ -16,7 +16,7 @@ templ DiskRow(d WebDisk) {
 		<td>{ d.OwnerUsername }</td>
 		<td>{ d.Size }</td>
 		<td>{ d.Shared }</td>
-		<td>{ d.Project }</td>
+		<td>{ d.Project.Name }</td>
 		<td>{ d.CreatedAt }</td>
 		if ctx.Value(consts.ContextEmail) == d.OwnerEmail {
 			<td>

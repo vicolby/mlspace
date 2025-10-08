@@ -19,3 +19,5 @@
 - [x] disk list
 - [x] create disk modal
   - debt: error handling
+- [x] create disk route
+  - debt: ugly duplicates for fetching the project name by ID, and no server validation

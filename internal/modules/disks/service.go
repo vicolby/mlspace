@@ -2,9 +2,15 @@ package disks
 
 import (
 	"aispace/internal/base"
+	"aispace/internal/consts"
 	"aispace/web/pages/disksweb"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type DiskService struct {
@@ -51,6 +57,57 @@ func (s *DiskService) GetProjectsForDisk(w http.ResponseWriter, r *http.Request)
 	}
 
 	return base.Serve(disksweb.DiskProjects(webDiskProjectsList), w)
+}
+
+func (s *DiskService) CreateDisk(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	projectId := uuid.MustParse(r.FormValue("project_id"))
+	ownerEmail := r.Context().Value(consts.ContextEmail).(string)
+	ownerUsername := r.Context().Value(consts.ContextUsername).(string)
+	diskId := uuid.New()
+
+	diskName := r.FormValue("disk_name")
+	diskSize, err := strconv.Atoi(r.FormValue("disk_size"))
+	diskShared := r.FormValue("disk_shared") == "true"
+
+
+	if ownerEmail == "" || err != nil {
+		fmt.Printf("Invalid request: %s", err)
+		return base.ErrorServe("Invalid request", http.StatusBadRequest, w)
+	}
+
+	projectName, err := s.repository.GetProjectNameByID(projectId)
+
+	if err != nil {
+		log.Printf("Error while fetching project name: %s", err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	disk := Disk{
+		ID:   diskId,
+		Name: diskName,
+		Owner: Owner{
+			Username: ownerUsername,
+			Email:    ownerEmail,
+		},
+		Size:   diskSize,
+		Shared: diskShared,
+		Project: DiskProject{
+			ID:   projectId,
+			Name: projectName,
+		},
+		CreatedAt: time.Now(),
+	}
+
+	err = s.repository.CreateDisk(disk)
+
+	if err != nil {
+		log.Printf("Error while creating disk: %s", err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	webDisk := disk.ToWebDisk(disk)
+
+	return base.Serve(disksweb.DiskRow(webDisk), w)
 }
 
 func ProvideDiskService(repository DiskRepository) *DiskService {

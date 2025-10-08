@@ -24,6 +24,13 @@ func (h *DiskHandler) GetProjectsForDisk(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+func (h *DiskHandler) CreateDisk(w http.ResponseWriter, r *http.Request) {
+	handler := h.diskService.CreateDisk(w, r)
+	if handler != nil {
+		handler(w, r)
+	}
+}
+
 func ProvideDiskHandler(diskService *DiskService) *DiskHandler {
 	return NewDiskHandler(diskService)
 }

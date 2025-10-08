@@ -54,6 +54,7 @@ func (h *Handlers) SetupRoutes(r *chi.Mux, provider *oidc.Provider) {
 		// DISKS
 		r.Get("/disks", h.diskHandler.GetDisks)
 		r.Get("/disks/project-search", h.diskHandler.GetProjectsForDisk)
+		r.Post("/disks", h.diskHandler.CreateDisk)
 	})
 }
 

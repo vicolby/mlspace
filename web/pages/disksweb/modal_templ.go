@@ -35,9 +35,9 @@ func DiskProjects(projects []WebDiskProject) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(project.Name)
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(project.ID.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/disksweb/modal.templ`, Line: 5, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/disksweb/modal.templ`, Line: 5, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -50,7 +50,7 @@ func DiskProjects(projects []WebDiskProject) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(project.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/disksweb/modal.templ`, Line: 5, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/disksweb/modal.templ`, Line: 5, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func NewDiskForm() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form id=\"new_disk_form\" hx-post=\"/disks/create\" hx-target=\"#disk_list\" hx-swap=\"beforebegin\" hx-on::after-request=\"if (event.detail.target.id === 'disk_list') disk_modal.close()\"><fieldset class=\"fieldset flex flex-col\"><legend class=\"fieldset-legend\">Disk name</legend> <input name=\"name\" type=\"text\" class=\"input validator w-full\" placeholder=\"My disk\" minlength=\"3\" maxlength=\"100\" required><p class=\"validator-hint\">Must be between 3 and 100 in length</p><legend class=\"fieldset-legend\">Project</legend> <select id=\"project_select\" hx-get=\"/disks/project-search\" hx-target=\"#project_select\" hx-trigger=\"delay:100ms, load\" hx-swap=\"innerHTML\" name=\"project_name\" class=\"select w-full\" required><option value=\"\">Select a project</option></select> <input name=\"size\" type=\"number\" placeholder=\"Size\" class=\"input validator w-full\" min=\"1\" required><p class=\"validator-hint\">>= 1</p><fieldset class=\"fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full\"><label class=\"label\"><input type=\"checkbox\" class=\"checkbox\"> Make it shared</label></fieldset></fieldset><div class=\"modal-action\"><button class=\"btn btn-primary mt-1\" type=\"submit\">Create</button></div></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<form id=\"new_disk_form\" hx-post=\"/disks\" hx-target=\"#disk_list\" hx-swap=\"beforebegin\" hx-on::after-request=\"if (event.detail.target.id === 'disk_list') disk_modal.close()\"><fieldset class=\"fieldset flex flex-col\"><legend class=\"fieldset-legend\">Disk name</legend> <input name=\"disk_name\" type=\"text\" class=\"input validator w-full\" placeholder=\"My disk\" minlength=\"3\" maxlength=\"100\" required><p class=\"validator-hint\">Must be between 3 and 100 in length</p><legend class=\"fieldset-legend\">Project</legend> <select id=\"project_select\" hx-get=\"/disks/project-search\" hx-target=\"#project_select\" hx-trigger=\"delay:100ms, load\" hx-swap=\"innerHTML\" name=\"project_id\" class=\"select w-full\" required><option value=\"\">Select a project</option></select> <input name=\"disk_size\" type=\"number\" placeholder=\"Size\" class=\"input validator w-full\" min=\"1\" required><p class=\"validator-hint\">>= 1</p><fieldset class=\"fieldset bg-base-100 border-base-300 rounded-box w-64 border p-4 w-full\"><label class=\"label\"><input name=\"disk_shared\" type=\"checkbox\" class=\"checkbox\"> Make it shared</label></fieldset></fieldset><div class=\"modal-action\"><button class=\"btn btn-primary mt-1\" type=\"submit\">Create</button></div></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

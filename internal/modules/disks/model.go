@@ -2,6 +2,7 @@ package disks
 
 import (
 	"aispace/web/pages/disksweb"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -12,8 +13,8 @@ type Disk struct {
 	Owner     Owner
 	Size      int  `db:"size"`
 	Shared    bool `db:"shared"`
-	Project   string
-	CreatedAt string `db:"create_at"`
+	Project   DiskProject
+	CreatedAt time.Time `db:"created_at"`
 }
 
 type DiskProject struct {
@@ -41,8 +42,8 @@ func (d *Disk) ToWebDisk(disk Disk) disksweb.WebDisk {
 		OwnerEmail:    disk.Owner.Email,
 		Size:          disk.Size,
 		Shared:        disk.Shared,
-		Project:       disk.Project,
-		CreatedAt:     disk.CreatedAt,
+		Project:       disk.Project.ToWebDiskProject(disk.Project),
+		CreatedAt:     disk.CreatedAt.Format("2006-01-02"),
 	}
 
 }

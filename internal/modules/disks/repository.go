@@ -4,11 +4,15 @@ import (
 	"aispace/internal/consts"
 	"aispace/internal/storage"
 	"context"
+
+	"github.com/google/uuid"
 )
 
 type DiskRepository interface {
+	CreateDisk(disk Disk) error
 	GetDisks(ctx context.Context) ([]Disk, error)
 	GetProjectsByName(ctx context.Context, name string) ([]DiskProject, error)
+	GetProjectNameByID(id uuid.UUID) (string, error)
 }
 
 type PostgresDiskRepository struct {
@@ -51,7 +55,7 @@ func (p *PostgresDiskRepository) GetDisks(ctx context.Context) ([]Disk, error) {
 			&ownerName,
 			&disk.Size,
 			&disk.Shared,
-			&disk.Project,
+			&disk.Project.Name,
 			&disk.CreatedAt,
 		)
 
@@ -68,6 +72,33 @@ func (p *PostgresDiskRepository) GetDisks(ctx context.Context) ([]Disk, error) {
 	}
 
 	return diskList, nil
+}
+
+func (p *PostgresDiskRepository) GetProjectNameByID(id uuid.UUID) (string, error) {
+	query := `
+		SELECT
+		    p.name
+		FROM
+		    projects p
+		WHERE
+		    p.id = $1
+	`
+	rows, err := p.uow.DB().Queryx(query, id)
+
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	var projectName string
+	if rows.Next() {
+		err = rows.Scan(&projectName)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return projectName, nil
 }
 
 func (p *PostgresDiskRepository) GetProjectsByName(ctx context.Context, name string) ([]DiskProject, error) {
@@ -113,6 +144,30 @@ func (p *PostgresDiskRepository) GetProjectsByName(ctx context.Context, name str
 	}
 
 	return projectList, nil
+}
+
+func (p *PostgresDiskRepository) CreateDisk(disk Disk) error {
+	query := `
+		INSERT INTO disks (id, name, owner_id, size, shared, project_id, created_at)
+		VALUES ($1, $2, (SELECT id FROM users WHERE email = $3), $4, $5, $6, $7)
+	`
+
+	_, err := p.uow.DB().Exec(
+		query,
+		disk.ID,
+		disk.Name,
+		disk.Owner.Email,
+		disk.Size,
+		disk.Shared,
+		disk.Project.ID,
+		disk.CreatedAt,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ProvidePostgresDiskRepository(uow storage.UnitOfWork) DiskRepository {

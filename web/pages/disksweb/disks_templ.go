@@ -21,7 +21,7 @@ type WebDisk struct {
 	OwnerEmail    string
 	Size          int
 	Shared        bool
-	Project       string
+	Project       WebDiskProject
 	CreatedAt     string
 }
 
