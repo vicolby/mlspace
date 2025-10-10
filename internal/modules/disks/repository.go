@@ -10,6 +10,7 @@ import (
 
 type DiskRepository interface {
 	CreateDisk(disk Disk) error
+	DeleteDisk(id uuid.UUID) error
 	GetDisks(ctx context.Context) ([]Disk, error)
 	GetProjectsByName(ctx context.Context, name string) ([]DiskProject, error)
 	GetProjectNameByID(id uuid.UUID) (string, error)
@@ -162,6 +163,20 @@ func (p *PostgresDiskRepository) CreateDisk(disk Disk) error {
 		disk.Project.ID,
 		disk.CreatedAt,
 	)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *PostgresDiskRepository) DeleteDisk(id uuid.UUID) error {
+	query := `
+		DELETE FROM disks WHERE id = $1
+	`
+
+	_, err := p.uow.DB().Exec(query, id)
 
 	if err != nil {
 		return err

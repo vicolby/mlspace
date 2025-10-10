@@ -1,10 +1,10 @@
 #!/bin/sh
 
-KEYCLOAK_URL="http://localhost:8080"
+KEYCLOAK_URL="http://localhost:8081"
 ADMIN_USER="admin"
 ADMIN_PASSWORD="admin"
 
-until curl -s http://localhost:8080/health/ready > /dev/null; do
+until curl -s http://localhost:8081/health/ready > /dev/null; do
   echo "Waiting for Keycloak..."
   sleep 5
 done
@@ -133,4 +133,4 @@ echo "Realm: aispace"
 echo "Client ID: AISPACE"
 echo "Client Secret: your-secret-key-here"
 echo "Test User: testuser / password123"
-echo "Provider URL: http://localhost:8080/realms/aispace"
+echo "Provider URL: http://localhost:8081/realms/aispace"

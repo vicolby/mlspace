@@ -2,6 +2,10 @@
 
 ## How to run
 
+### Minikube(prerequisite)
+```minikube start```
+
+
 ### Postgres for local dev
 ```docker-compose up -d```
 
@@ -12,4 +16,3 @@
 ### Run server
 ```make setup```
 ```make dev```
-

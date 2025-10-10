@@ -12,7 +12,7 @@ templ NewDiskForm() {
 		hx-post="/disks"
 		hx-target="#disk_list"
 		hx-swap="beforebegin"
-		hx-on::after-request="if (event.detail.target.id === 'disk_list') disk_modal.close()"
+		hx-on::after-request="if (event.detail.target.id === 'disk_list') disk_modal.close(); this.reset()"
 	>
 		<fieldset class="fieldset flex flex-col">
 			<legend class="fieldset-legend">Disk name</legend>

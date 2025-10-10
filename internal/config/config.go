@@ -10,6 +10,7 @@ type Config struct {
 	Auth   AuthConfig
 	DB     DBConfig
 	CORS   CORSConfig
+	Kuber  KuberConfig
 }
 
 type ServerConfig struct {
@@ -41,6 +42,10 @@ type CORSConfig struct {
 	AllowCredentials bool
 }
 
+type KuberConfig struct {
+	KubeConfigPath string
+}
+
 func Load() Config {
 	return Config{
 		Server: ServerConfig{
@@ -67,6 +72,9 @@ func Load() Config {
 			AllowedMethods:   strings.Split(getEnv("CORS_ALLOWED_METHODS", "GET,POST,PUT,DELETE,OPTIONS"), ","),
 			AllowedHeaders:   strings.Split(getEnv("CORS_ALLOWED_HEADERS", "Content-Type,Authorization,X-Requested-With"), ","),
 			AllowCredentials: getEnv("CORS_ALLOW_CREDENTIALS", "true") == "true",
+		},
+		Kuber: KuberConfig{
+			KubeConfigPath: getEnv("KUBE_CONFIG_PATH", ""),
 		},
 	}
 }

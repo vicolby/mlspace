@@ -2,6 +2,7 @@ package projects
 
 import (
 	"aispace/internal/base"
+	"aispace/internal/clients"
 	"aispace/internal/consts"
 	"aispace/web/pages/projectsweb"
 	"log"
@@ -12,11 +13,12 @@ import (
 )
 
 type ProjectService struct {
-	repository ProjectRepository
+	repository   ProjectRepository
+	kuberService *clients.KuberService
 }
 
-func NewProjectService(repository ProjectRepository) *ProjectService {
-	return &ProjectService{repository: repository}
+func NewProjectService(repository ProjectRepository, kuberService *clients.KuberService) *ProjectService {
+	return &ProjectService{repository: repository, kuberService: kuberService}
 }
 
 func (s *ProjectService) GetProjects(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
@@ -56,9 +58,16 @@ func (s *ProjectService) CreateProject(w http.ResponseWriter, r *http.Request, c
 		StorageLimit: command.StorageLimit,
 	}
 
-	err := s.repository.CreateProject(project)
-
+	err := s.kuberService.CreateNamespace(r.Context(), project.ID.String())
 	if err != nil {
+		log.Println(err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	err = s.repository.CreateProject(project)
+	if err != nil {
+		log.Println(err)
+		s.kuberService.DeleteNamespace(r.Context(), project.ID.String())
 		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
 	}
 
@@ -166,14 +175,20 @@ func (s *ProjectService) DeleteProject(w http.ResponseWriter, r *http.Request) h
 	}
 
 	err = s.repository.DeleteProject(projectId)
-
 	if err != nil {
+		log.Println(err)
+		return base.ErrorServe("Something went wrong", http.StatusBadRequest, w)
+	}
+
+	err = s.kuberService.DeleteNamespace(r.Context(), projectId.String())
+	if err != nil {
+		log.Println(err)
 		return base.ErrorServe("Something went wrong", http.StatusBadRequest, w)
 	}
 
 	return base.ServeNoSwap(w)
 }
 
-func ProvideProjectService(repository ProjectRepository) *ProjectService {
-	return NewProjectService(repository)
+func ProvideProjectService(repository ProjectRepository, kuberService *clients.KuberService) *ProjectService {
+	return NewProjectService(repository, kuberService)
 }

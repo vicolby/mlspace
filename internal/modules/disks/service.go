@@ -2,6 +2,7 @@ package disks
 
 import (
 	"aispace/internal/base"
+	"aispace/internal/clients"
 	"aispace/internal/consts"
 	"aispace/web/pages/disksweb"
 	"fmt"
@@ -10,15 +11,17 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 type DiskService struct {
-	repository DiskRepository
+	repository   DiskRepository
+	kuberService *clients.KuberService
 }
 
-func NewDiskService(repository DiskRepository) *DiskService {
-	return &DiskService{repository: repository}
+func NewDiskService(repository DiskRepository, kuberService *clients.KuberService) *DiskService {
+	return &DiskService{repository: repository, kuberService: kuberService}
 }
 
 func (s *DiskService) GetDisks(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
@@ -69,7 +72,6 @@ func (s *DiskService) CreateDisk(w http.ResponseWriter, r *http.Request) http.Ha
 	diskSize, err := strconv.Atoi(r.FormValue("disk_size"))
 	diskShared := r.FormValue("disk_shared") == "true"
 
-
 	if ownerEmail == "" || err != nil {
 		fmt.Printf("Invalid request: %s", err)
 		return base.ErrorServe("Invalid request", http.StatusBadRequest, w)
@@ -110,6 +112,19 @@ func (s *DiskService) CreateDisk(w http.ResponseWriter, r *http.Request) http.Ha
 	return base.Serve(disksweb.DiskRow(webDisk), w)
 }
 
-func ProvideDiskService(repository DiskRepository) *DiskService {
-	return NewDiskService(repository)
+func (s *DiskService) DeleteDisk(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	diskId := uuid.MustParse(chi.URLParam(r, "disk_id"))
+
+	err := s.repository.DeleteDisk(diskId)
+
+	if err != nil {
+		log.Printf("Error while deleting disk: %s", err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	return base.ServeNoSwap(w)
+}
+
+func ProvideDiskService(repository DiskRepository, kuberService *clients.KuberService) *DiskService {
+	return NewDiskService(repository, kuberService)
 }

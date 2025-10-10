@@ -2,6 +2,7 @@ package main
 
 import (
 	"aispace/internal"
+	"aispace/internal/clients"
 	"aispace/internal/config"
 	"aispace/internal/modules/disks"
 	"aispace/internal/modules/projects"
@@ -39,6 +40,7 @@ func main() {
 			internal.ProvideRouter,
 			storage.NewDB,
 			storage.NewUnitOfWork,
+			clients.ProvideKuberService,
 			// users
 			users.ProvidePostgresUserRepository,
 			users.ProvideAuthService,

@@ -37,12 +37,12 @@ services:
       KC_HTTP_ENABLED: true
       KC_HEALTH_ENABLED: true
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8081:8080"
     depends_on:
       postgres:
         condition: service_healthy
     command: start-dev
-    
+
   keycloak-setup:
     image: curlimages/curl:latest
     container_name: keycloak_setup

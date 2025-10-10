@@ -13,7 +13,10 @@
     - [x] deleting users from project
     - Debt: proper error and role access handling [x]
 - [x] project deleting (only from projects list page for now)
+- [x] create k8s namespace when project is created
+  - debt: consider outbox pattern since there is a second api call after entity creation in DB
 - project editing
+
 
 ## Disks
 - [x] disk list
@@ -21,3 +24,4 @@
   - debt: error handling
 - [x] create disk route
   - debt: ugly duplicates for fetching the project name by ID, and no server validation
+- [x] delete disk route
