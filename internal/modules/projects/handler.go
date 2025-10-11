@@ -2,10 +2,15 @@ package projects
 
 import (
 	"net/http"
-	"strconv"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/form/v4"
 )
+
+var formDecoder *form.Decoder
+
+func init() {
+	formDecoder = form.NewDecoder()
+}
 
 type ProjectHandler struct {
 	projectService *ProjectService
@@ -37,41 +42,18 @@ func (h *ProjectHandler) GetAvailableUsers(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *ProjectHandler) CreateProject(w http.ResponseWriter, r *http.Request) {
-	cpu_limit, err := strconv.Atoi(r.FormValue("cpu_limit"))
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Failed to parse form data: "+err.Error(), http.StatusBadRequest)
 	}
 
-	ram_limit, err := strconv.Atoi(r.FormValue("ram_limit"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	command := CreateProjectCommand{}
+
+	if err := formDecoder.Decode(&command, r.PostForm); err != nil {
+		http.Error(w, "Invalid input data: "+err.Error(), http.StatusBadRequest)
 	}
 
-	storage_limit, err := strconv.Atoi(r.FormValue("storage_limit"))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	command := CreateProjectCommand{
-		Name:         r.FormValue("name"),
-		Description:  r.FormValue("description"),
-		CPULimit:     cpu_limit,
-		RAMLimit:     ram_limit,
-		StorageLimit: storage_limit,
-	}
-
-	var validate *validator.Validate
-
-	validate = validator.New()
-	err = validate.Struct(command)
-
-	if err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
+	if err := command.Validate(); err != nil {
+		http.Error(w, "Validation failed: "+err.Error(), http.StatusBadRequest)
 	}
 
 	handler := h.projectService.CreateProject(w, r, command)

@@ -44,7 +44,7 @@ func (s *DiskService) GetDisks(w http.ResponseWriter, r *http.Request) http.Hand
 	var webDiskList []disksweb.WebDisk
 
 	for _, disk := range disks {
-		webDiskList = append(webDiskList, disk.ToWebDisk(disk))
+		webDiskList = append(webDiskList, disk.ToWebDisk())
 	}
 
 	if r.Header.Get("HX-Request") == "true" {
@@ -124,7 +124,7 @@ func (s *DiskService) CreateDisk(w http.ResponseWriter, r *http.Request) http.Ha
 		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
 	}
 
-	webDisk := disk.ToWebDisk(disk)
+	webDisk := disk.ToWebDisk()
 
 	return base.Serve(disksweb.DiskRow(webDisk), w)
 }

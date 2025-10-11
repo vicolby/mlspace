@@ -50,17 +50,17 @@ type Owner struct {
 	Email    string `db:"email"`
 }
 
-func (d *Disk) ToWebDisk(disk Disk) disksweb.WebDisk {
+func (d *Disk) ToWebDisk() disksweb.WebDisk {
 	return disksweb.WebDisk{
-		ID:            disk.ID,
-		Name:          disk.Name,
-		Status:        disk.Status.String(),
-		OwnerUsername: disk.Owner.Username,
-		OwnerEmail:    disk.Owner.Email,
-		Size:          disk.Size,
-		Shared:        disk.Shared,
-		Project:       disk.Project.ToWebDiskProject(disk.Project),
-		CreatedAt:     disk.CreatedAt.Format("2006-01-02"),
+		ID:            d.ID,
+		Name:          d.Name,
+		Status:        d.Status.String(),
+		OwnerUsername: d.Owner.Username,
+		OwnerEmail:    d.Owner.Email,
+		Size:          d.Size,
+		Shared:        d.Shared,
+		Project:       d.Project.ToWebDiskProject(d.Project),
+		CreatedAt:     d.CreatedAt.Format("2006-01-02"),
 	}
 
 }

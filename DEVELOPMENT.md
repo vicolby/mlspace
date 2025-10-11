@@ -8,7 +8,7 @@ DEBT: tests(not in the mood rn, will write them with LLM)
 - [x] user logout
 - [x] list of projects page
 - [x] creating a project
-    - Debt: validations inside handler and context vars inside middlware package [x][]
+    - Debt: validations inside handler and context vars inside middlware package [x][x]
 - [x] project page
     - [x] adding users to project
     - Debt: duplicates of project Id context setting inside handlers and services [x]
