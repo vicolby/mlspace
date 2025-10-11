@@ -2,8 +2,8 @@ package disks
 
 import (
 	"aispace/internal/base"
-	"aispace/internal/clients"
 	"aispace/internal/consts"
+	"aispace/internal/services"
 	"aispace/web/pages/disksweb"
 	"fmt"
 	"log"
@@ -17,10 +17,10 @@ import (
 
 type DiskService struct {
 	repository   DiskRepository
-	kuberService *clients.KuberService
+	kuberService *services.KuberService
 }
 
-func NewDiskService(repository DiskRepository, kuberService *clients.KuberService) *DiskService {
+func NewDiskService(repository DiskRepository, kuberService *services.KuberService) *DiskService {
 	return &DiskService{repository: repository, kuberService: kuberService}
 }
 
@@ -30,6 +30,15 @@ func (s *DiskService) GetDisks(w http.ResponseWriter, r *http.Request) http.Hand
 	if err != nil {
 		log.Printf("Error while fetching disks: %s", err)
 		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	for i := range disks {
+		disk := &disks[i]
+		status, err := s.kuberService.GetPVCStatus(r.Context(), disk.GetNamespace(), disk.GetPVCName())
+		if err != nil {
+			status = services.Unknown
+		}
+		disk.Status = status
 	}
 
 	var webDiskList []disksweb.WebDisk
@@ -107,6 +116,14 @@ func (s *DiskService) CreateDisk(w http.ResponseWriter, r *http.Request) http.Ha
 		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
 	}
 
+	_, err = s.kuberService.CreatePVC(r.Context(), disk.GetNamespace(), disk.GetPVCName(), disk.GetPVCSize(), ownerEmail)
+
+	if err != nil {
+		s.repository.DeleteDisk(diskId)
+		log.Printf("Error while creating PVC: %s", err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
 	webDisk := disk.ToWebDisk(disk)
 
 	return base.Serve(disksweb.DiskRow(webDisk), w)
@@ -125,6 +142,26 @@ func (s *DiskService) DeleteDisk(w http.ResponseWriter, r *http.Request) http.Ha
 	return base.ServeNoSwap(w)
 }
 
-func ProvideDiskService(repository DiskRepository, kuberService *clients.KuberService) *DiskService {
+func (s *DiskService) GetDiskStatus(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
+	diskId := uuid.MustParse(chi.URLParam(r, "disk_id"))
+
+	disk, err := s.repository.GetDiskByID(diskId)
+
+	if err != nil {
+		log.Printf("Error while fetching disk: %s", err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	status, err := s.kuberService.GetPVCStatus(r.Context(), disk.GetNamespace(), disk.GetPVCName())
+
+	if err != nil {
+		log.Printf("Error while fetching PVC status: %s", err)
+		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
+	}
+
+	return base.Serve(disksweb.DiskStatus(disk.ID, status.String()), w)
+}
+
+func ProvideDiskService(repository DiskRepository, kuberService *services.KuberService) *DiskService {
 	return NewDiskService(repository, kuberService)
 }

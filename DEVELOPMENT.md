@@ -1,5 +1,7 @@
 # Roadmap
 
+DEBT: tests(not in the mood rn, will write them with LLM)
+
 ## Projects
 - [x] auth with keycloak
     - Debt: no data layer provided [x]
@@ -23,5 +25,8 @@
 - [x] create disk modal
   - debt: error handling
 - [x] create disk route
+  [x] create PVC for disk
+  [x] get PVC status with k8s client watcher
   - debt: ugly duplicates for fetching the project name by ID, and no server validation
+  - debt: Ugly PVCStatus enum and poor error handling
 - [x] delete disk route

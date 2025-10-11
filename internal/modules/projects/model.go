@@ -2,6 +2,7 @@ package projects
 
 import (
 	"aispace/web/pages/projectsweb"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -15,6 +16,10 @@ type Project struct {
 	RAMLimit     int    `db:"ram_limit"`
 	StorageLimit int    `db:"storage_limit"`
 	CreatedAt    string `db:"created_at"`
+}
+
+func (p *Project) GetNamespace() string {
+	return fmt.Sprintf("project-%s", p.ID.String())
 }
 
 func (p *Project) ToWebProject(project Project) projectsweb.WebProject {

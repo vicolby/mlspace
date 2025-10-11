@@ -20,6 +20,7 @@ type ProjectRepository interface {
 	CanGetProject(projectId uuid.UUID, ctx context.Context) bool
 	DeleteProject(projectId uuid.UUID) error
 	CanDeleteProject(projectId uuid.UUID, ctx context.Context) bool
+	HasDisks(projectId uuid.UUID) bool
 }
 
 type PostgresProjectRepository struct {
@@ -323,6 +324,22 @@ func (p *PostgresProjectRepository) CanDeleteProject(projectId uuid.UUID, ctx co
 	`
 
 	rows, err := p.uow.DB().Queryx(query, projectId, email)
+
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+
+	return rows.Next()
+}
+
+func (p *PostgresProjectRepository) HasDisks(projectId uuid.UUID) bool {
+	query := `
+		SELECT 1 FROM disks d
+		WHERE d.project_id = $1
+	`
+
+	rows, err := p.uow.DB().Queryx(query, projectId)
 
 	if err != nil {
 		return false

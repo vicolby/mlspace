@@ -17,6 +17,7 @@ import (
 type WebDisk struct {
 	ID            uuid.UUID
 	Name          string
+	Status        string
 	OwnerUsername string
 	OwnerEmail    string
 	Size          int

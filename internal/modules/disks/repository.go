@@ -12,6 +12,7 @@ type DiskRepository interface {
 	CreateDisk(disk Disk) error
 	DeleteDisk(id uuid.UUID) error
 	GetDisks(ctx context.Context) ([]Disk, error)
+	GetDiskByID(id uuid.UUID) (Disk, error)
 	GetProjectsByName(ctx context.Context, name string) ([]DiskProject, error)
 	GetProjectNameByID(id uuid.UUID) (string, error)
 }
@@ -27,7 +28,7 @@ func NewPostgresDiskRepository(uow storage.UnitOfWork) *PostgresDiskRepository {
 func (p *PostgresDiskRepository) GetDisks(ctx context.Context) ([]Disk, error) {
 	email := ctx.Value(consts.ContextEmail).(string)
 	query := `
-		SELECT d.id, d.name, u.email, u.name, d.size, d.shared, p.name, d.created_at
+		SELECT d.id, d.name, u.email, u.name, d.size, d.shared, p.name, p.id, d.created_at
 		FROM disks d
 		JOIN users u
 		ON u.id = d.owner_id
@@ -57,6 +58,7 @@ func (p *PostgresDiskRepository) GetDisks(ctx context.Context) ([]Disk, error) {
 			&disk.Size,
 			&disk.Shared,
 			&disk.Project.Name,
+			&disk.Project.ID,
 			&disk.CreatedAt,
 		)
 
@@ -183,6 +185,30 @@ func (p *PostgresDiskRepository) DeleteDisk(id uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (p *PostgresDiskRepository) GetDiskByID(id uuid.UUID) (Disk, error) {
+	query := `
+		SELECT
+		    id,
+		    project_id
+		FROM
+		    disks
+		WHERE
+		    id = $1
+	`
+
+	var disk Disk
+	var projectID uuid.UUID
+
+	err := p.uow.DB().QueryRowx(query, id).Scan(&disk.ID, &projectID)
+	if err != nil {
+		return Disk{}, err
+	}
+
+	disk.Project.ID = projectID
+
+	return disk, nil
 }
 
 func ProvidePostgresDiskRepository(uow storage.UnitOfWork) DiskRepository {

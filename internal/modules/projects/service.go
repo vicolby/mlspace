@@ -2,7 +2,7 @@ package projects
 
 import (
 	"aispace/internal/base"
-	"aispace/internal/clients"
+	"aispace/internal/services"
 	"aispace/internal/consts"
 	"aispace/web/pages/projectsweb"
 	"log"
@@ -14,10 +14,10 @@ import (
 
 type ProjectService struct {
 	repository   ProjectRepository
-	kuberService *clients.KuberService
+	kuberService *services.KuberService
 }
 
-func NewProjectService(repository ProjectRepository, kuberService *clients.KuberService) *ProjectService {
+func NewProjectService(repository ProjectRepository, kuberService *services.KuberService) *ProjectService {
 	return &ProjectService{repository: repository, kuberService: kuberService}
 }
 
@@ -58,7 +58,7 @@ func (s *ProjectService) CreateProject(w http.ResponseWriter, r *http.Request, c
 		StorageLimit: command.StorageLimit,
 	}
 
-	err := s.kuberService.CreateNamespace(r.Context(), project.ID.String())
+	err := s.kuberService.CreateNamespace(r.Context(), project.GetNamespace(), email)
 	if err != nil {
 		log.Println(err)
 		return base.ErrorServe("Something went wrong", http.StatusInternalServerError, w)
@@ -174,6 +174,10 @@ func (s *ProjectService) DeleteProject(w http.ResponseWriter, r *http.Request) h
 		return base.ErrorServe("You can't brother", http.StatusBadRequest, w)
 	}
 
+	if s.repository.HasDisks(projectId) {
+		return base.ErrorServe("Project has disks", http.StatusBadRequest, w)
+	}
+
 	err = s.repository.DeleteProject(projectId)
 	if err != nil {
 		log.Println(err)
@@ -189,6 +193,6 @@ func (s *ProjectService) DeleteProject(w http.ResponseWriter, r *http.Request) h
 	return base.ServeNoSwap(w)
 }
 
-func ProvideProjectService(repository ProjectRepository, kuberService *clients.KuberService) *ProjectService {
+func ProvideProjectService(repository ProjectRepository, kuberService *services.KuberService) *ProjectService {
 	return NewProjectService(repository, kuberService)
 }

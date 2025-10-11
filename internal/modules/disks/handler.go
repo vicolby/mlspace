@@ -38,6 +38,13 @@ func (h *DiskHandler) DeleteDisk(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *DiskHandler) GetDiskStatus(w http.ResponseWriter, r *http.Request) {
+	handler := h.diskService.GetDiskStatus(w, r)
+	if handler != nil {
+		handler(w, r)
+	}
+}
+
 func ProvideDiskHandler(diskService *DiskService) *DiskHandler {
 	return NewDiskHandler(diskService)
 }

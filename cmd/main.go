@@ -2,7 +2,7 @@ package main
 
 import (
 	"aispace/internal"
-	"aispace/internal/clients"
+	"aispace/internal/services"
 	"aispace/internal/config"
 	"aispace/internal/modules/disks"
 	"aispace/internal/modules/projects"
@@ -40,7 +40,7 @@ func main() {
 			internal.ProvideRouter,
 			storage.NewDB,
 			storage.NewUnitOfWork,
-			clients.ProvideKuberService,
+			services.ProvideKuberService,
 			// users
 			users.ProvidePostgresUserRepository,
 			users.ProvideAuthService,
@@ -59,7 +59,7 @@ func main() {
 		fx.Invoke(func(h *internal.Handlers, r *chi.Mux, provider *oidc.Provider, config oauth2.Config) {
 			h.SetupRoutes(r, provider)
 		}),
-		fx.Invoke(func(srv *http.Server, lc fx.Lifecycle) {
+		fx.Invoke(func(srv *http.Server, lc fx.Lifecycle, k *services.KuberService) {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
 					go func() {
@@ -70,6 +70,7 @@ func main() {
 					return nil
 				},
 				OnStop: func(ctx context.Context) error {
+					k.StopInformer()
 					return srv.Shutdown(ctx)
 				},
 			})

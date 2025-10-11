@@ -29,7 +29,7 @@ func DiskTable(disk_list []WebDisk) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<table class=\"table table-compact w-full\"><thead><tr><th>Name</th><th>Owner</th><th>Size</th><th>Shared</th><th>Project</th><th>Created</th><th></th></tr></thead> <tbody id=\"disk_list\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<table class=\"table table-compact w-full\"><thead><tr><th>Name</th><th>Owner</th><th>Size</th><th>Shared</th><th>Project</th><th>Created</th><th>Status</th><th></th></tr></thead> <tbody id=\"disk_list\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -2,6 +2,17 @@ package disksweb
 
 import "fmt"
 import "aispace/internal/consts"
+import "github.com/google/uuid"
+
+templ DiskStatus(diskId uuid.UUID, status string) {
+	if status == "Succeeded" {
+		<div id={ fmt.Sprintf("status_%s", diskId.String()) } class="badge badge-success">{ status } </div>
+	} else if status == "Failed" {
+		<div id={ fmt.Sprintf("status_%s", diskId.String()) } class="badge badge-error">{ status } </div>
+	} else {
+		<div id={ fmt.Sprintf("status_%s", diskId.String()) } class="badge badge-info">{ status } </div>
+	}
+}
 
 templ DiskRow(d WebDisk) {
 	<tr
@@ -18,6 +29,21 @@ templ DiskRow(d WebDisk) {
 		<td>{ d.Shared }</td>
 		<td>{ d.Project.Name }</td>
 		<td>{ d.CreatedAt }</td>
+		<td>
+			@DiskStatus(d.ID, d.Status)
+			<button
+				class="ml-2 btn btn-xs btn-ghost btn-circle btn-soft btn-info"
+				onclick="event.stopPropagation();"
+				hx-get={ fmt.Sprintf("/disks/%s/status", d.ID) }
+				hx-target={ fmt.Sprintf("#status_%s", d.ID.String()) }
+				hx-swap="outerHTML"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+					<path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"></path>
+					<path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"></path>
+				</svg>
+			</button>
+		</td>
 		if ctx.Value(consts.ContextEmail) == d.OwnerEmail {
 			<td>
 				<button

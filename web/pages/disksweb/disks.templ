@@ -9,6 +9,7 @@ import (
 type WebDisk struct {
 	ID            uuid.UUID
 	Name          string
+	Status        string
 	OwnerUsername string
 	OwnerEmail    string
 	Size          int
@@ -18,7 +19,7 @@ type WebDisk struct {
 }
 
 type WebDiskProject struct {
-	ID uuid.UUID
+	ID   uuid.UUID
 	Name string
 }
 
